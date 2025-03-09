@@ -95,7 +95,7 @@ def add_logo():
 def sidebar_settings():
     with st.sidebar:
         st.title("⚙️ அமைப்புகள்")
-        add_description()
+        # add_description()
         # Groq API Key
         groq_api_key = st.text_input("Groq API Key", type="password")
         
