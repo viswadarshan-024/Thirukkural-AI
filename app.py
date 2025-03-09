@@ -14,8 +14,8 @@ load_dotenv()
 
 # Page configuration
 st.set_page_config(
-    page_title="தமிழ் தகவல் உதவியாளர் | Tamil Information Assistant",
-    page_icon="📚",
+    page_title="Thirukkural AI",
+    page_icon="📖",
     layout="wide"
 )
 
@@ -86,7 +86,7 @@ def apply_custom_css():
 def add_logo():
     st.markdown("""
     <div class="header-container">
-        <div class="header-text">Thirukkural AI</div>
+        <div class="header-text"><strong>📖 Thirukkural AI</strong></div>
     </div>
     <p style="text-align: center; margin-bottom: 20px;">Experience the Profound Wisdom of Thirukkural, Reimagined</p>
     """, unsafe_allow_html=True)
