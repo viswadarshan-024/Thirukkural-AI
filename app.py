@@ -3,12 +3,11 @@ import pandas as pd
 import faiss
 from sentence_transformers import SentenceTransformer
 import numpy as np
-import google.generativeai as genai
 import os
 from dotenv import load_dotenv
-import base64
-from PIL import Image
-import io
+import requests
+import json
+import time
 
 # Load environment variables
 load_dotenv()
@@ -98,22 +97,14 @@ def sidebar_settings():
     with st.sidebar:
         st.title("⚙️ அமைப்புகள்")
         
-        # Gemini API Key
-        gemini_api_key = st.text_input("Gemini API Key", type="password")
+        # Groq API Key
+        groq_api_key = st.text_input("Groq API Key", type="password")
         
-        # Google API Key
-        google_api_key = st.text_input("Google API Key", type="password")
-        
-        # Google CSE ID
-        google_cse_id = st.text_input("Google CX (Custom Search Engine ID)", type="password")
-        
-        if gemini_api_key and google_api_key and google_cse_id:
-            st.success("அனைத்து API விசைகளும் சேமிக்கப்பட்டன!")
+        if groq_api_key:
+            st.success("API விசை சேமிக்கப்பட்டது!")
             
-            # Save the API keys to session state
-            st.session_state.gemini_api_key = gemini_api_key
-            st.session_state.google_api_key = google_api_key
-            st.session_state.google_cse_id = google_cse_id
+            # Save the API key to session state
+            st.session_state.groq_api_key = groq_api_key
             
             return True
     
@@ -133,11 +124,6 @@ def load_vector_db():
     model = SentenceTransformer('paraphrase-multilingual-mpnet-base-v2')
     
     return df, tamil_index, english_index, model
-
-# Initialize Gemini API
-def init_gemini_api(api_key):
-    genai.configure(api_key=api_key)
-    return genai.GenerativeModel('gemini-1.5-pro')
 
 # Find relevant Thirukkurals
 def find_relevant_kurals(query, df, tamil_index, english_index, model, language="both", top_k=5):
@@ -162,8 +148,15 @@ def find_relevant_kurals(query, df, tamil_index, english_index, model, language=
     # Return top k results
     return results[:top_k]
 
-# Generate explanation and advice using Gemini API
-def generate_gemini_response(model, query, kural_data):
+# Generate explanation and advice using Groq API with Llama-3.3-70b-versatile model
+def generate_groq_response(api_key, query, kural_data):
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    
     prompt = f"""
     User Query: {query}
     
@@ -205,11 +198,31 @@ def generate_gemini_response(model, query, kural_data):
     </english_advice>
     """
     
-    response = model.generate_content(prompt)
-    return response.text
+    data = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.7,
+        "max_tokens": 2048
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        
+        response_data = response.json()
+        return response_data["choices"][0]["message"]["content"]
+    except requests.exceptions.RequestException as e:
+        st.error(f"API Error: {str(e)}")
+        return None
+    except (KeyError, IndexError) as e:
+        st.error(f"Unexpected response format: {str(e)}")
+        return None
 
-# Extract information from Gemini response
-def parse_gemini_response(response_text):
+# Extract information from Groq response
+def parse_groq_response(response_text):
+    if not response_text:
+        return {}
+        
     result = {}
     
     # Extract relevance score
@@ -262,17 +275,16 @@ def main():
     apply_custom_css()
     add_logo()
     
-    # Check if API keys are set
-    api_keys_set = sidebar_settings()
+    # Check if API key is set
+    api_key_set = sidebar_settings()
     
-    if not api_keys_set:
-        st.warning("முதலில் சைட்பாரில் API விசைகளை உள்ளிடவும் / Please enter API keys in the sidebar first")
+    if not api_key_set:
+        st.warning("முதலில் சைட்பாரில் Groq API விசையை உள்ளிடவும் / Please enter Groq API key in the sidebar first")
         return
     
     # Load vector DB and models
     try:
         df, tamil_index, english_index, model = load_vector_db()
-        gemini_model = init_gemini_api(st.session_state.gemini_api_key)
     except Exception as e:
         st.error(f"Error loading models: {str(e)}")
         return
@@ -298,21 +310,30 @@ def main():
             best_score = -1
             
             # Process each result and find the most relevant one
-            for result in kural_results:
+            progress_bar = st.progress(0)
+            for i, result in enumerate(kural_results):
                 idx = result["index"]
                 kural_data = df.iloc[idx].to_dict()
                 
-                # Generate explanation using Gemini
-                gemini_response = generate_gemini_response(gemini_model, query, kural_data)
-                parsed_response = parse_gemini_response(gemini_response)
+                # Generate explanation using Groq
+                groq_response = generate_groq_response(st.session_state.groq_api_key, query, kural_data)
+                if groq_response:
+                    parsed_response = parse_groq_response(groq_response)
+                    
+                    # Check relevance score
+                    relevance_score = parsed_response.get("relevance_score", 0)
+                    
+                    if relevance_score > best_score:
+                        best_score = relevance_score
+                        best_kural = kural_data
+                        best_explanation = parsed_response
                 
-                # Check relevance score
-                relevance_score = parsed_response.get("relevance_score", 0)
-                
-                if relevance_score > best_score:
-                    best_score = relevance_score
-                    best_kural = kural_data
-                    best_explanation = parsed_response
+                # Update progress
+                progress_bar.progress((i + 1) / len(kural_results))
+                time.sleep(0.1)  # Small delay to show progress
+            
+            # Clear progress bar
+            progress_bar.empty()
             
             if best_kural and best_explanation:
                 # Create tabs for Tamil and English
@@ -369,6 +390,8 @@ def main():
                         {best_explanation.get("english_advice", "No advice available")}
                     </div>
                     """, unsafe_allow_html=True)
+            else:
+                st.error("Could not find a relevant Thirukkural for your query. Please try a different question.")
 
 if __name__ == "__main__":
     main()
