@@ -14,7 +14,7 @@ load_dotenv()
 
 # Set your Groq API key directly in the code
 # You should replace this with your actual Groq API key
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "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"
 
 # Store API key in session state for use throughout the app
 if 'groq_api_key' not in st.session_state:
