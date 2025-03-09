@@ -34,18 +34,20 @@ def apply_custom_css():
     /* Theme detection */
     @media (prefers-color-scheme: dark) {
         :root {
-            --bg-primary: #121212; /* Dark background */
-            --bg-secondary: #1e1e1e; /* Slightly lighter dark */
-            --bg-tertiary: #2a2a2a; /* Tertiary background */
+            --bg-primary: #181818; /* Dark background */
+            --bg-secondary: #242424; /* Slightly lighter dark */
+            --bg-tertiary: #2e2e2e; /* Tertiary background */
             --text-primary: #e0e0e0; /* Light grey text */
             --text-secondary: #b0b0b0; /* Medium grey text */
             --accent-primary: #bb86fc; /* Purple accent */
             --accent-secondary: #03dac6; /* Teal accent */
             --border-color: #444; /* Dark border */
-            --input-bg: #1e1e1e; /* Input background */
+            --input-bg: #242424; /* Input background */
             --input-text: #ffffff; /* Input text color */
             --button-bg: #bb86fc; /* Button background */
             --button-text: #ffffff; /* Button text color */
+            --header-bg: #1e1e1e; /* Header background */
+            --footer-bg: #181818; /* Footer background */
         }
     }
     
@@ -63,6 +65,8 @@ def apply_custom_css():
             --input-text: #212529; /* Input text color */
             --button-bg: #6200ee; /* Button background */
             --button-text: #ffffff; /* Button text color */
+            --header-bg: #f1f1f1; /* Header background */
+            --footer-bg: #f8f9fa; /* Footer background */
         }
     }
     
@@ -70,6 +74,9 @@ def apply_custom_css():
     .main {
         background-color: var(--bg-primary);
         color: var(--text-primary);
+        font-family: 'Arial', sans-serif; /* Classic font */
+        line-height: 1.6; /* Improved line height for readability */
+        padding: 20px; /* General padding for the main content */
     }
     
     /* Input elements */
@@ -78,7 +85,14 @@ def apply_custom_css():
         color: var(--input-text);
         border: 1px solid var(--border-color);
         border-radius: 5px; /* Rounded corners for inputs */
-        padding: 10px; /* Padding for better touch targets */
+        padding: 12px; /* Padding for better touch targets */
+        margin-bottom: 15px; /* Spacing below input fields */
+        transition: border-color 0.3s; /* Smooth transition */
+    }
+    
+    .stTextInput > div > div > input:focus {
+        border-color: var(--accent-primary); /* Highlight on focus */
+        outline: none; /* Remove default outline */
     }
     
     /* Buttons */
@@ -87,44 +101,51 @@ def apply_custom_css():
         color: var(--button-text);
         border: none; /* Remove default border */
         border-radius: 5px; /* Rounded corners for buttons */
-        padding: 10px 15px; /* Padding for better touch targets */
-        transition: background-color 0.3s; /* Smooth transition */
+        padding: 12px 20px; /* Padding for better touch targets */
+        margin-top: 10px; /* Spacing above buttons */
+        transition: background-color 0.3s, transform 0.2s; /* Smooth transition */
+        cursor: pointer; /* Pointer cursor on hover */
     }
     
     .stButton > button:hover {
         background-color: var(--accent-secondary); /* Change on hover */
+        transform: translateY(-2px); /* Slight lift effect */
     }
     
     /* Thirukkural box */
     .thirukkural-box {
         background-color: var(--bg-secondary);
-        padding: 20px;
+        padding: 25px;
         border-radius: 10px;
-        margin: 10px 0;
+        margin: 20px 0; /* Increased margin for better spacing */
         border-left: 5px solid var(--accent-primary);
         color: var(--text-primary);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
     }
     
     /* Kural text highlight */
     .kural-text {
-        font-size: 1.5em;
+        font-size: 1.6em; /* Slightly larger font size */
         font-weight: bold;
         color: var(--accent-secondary);
+        margin-bottom: 10px; /* Spacing below kural text */
     }
     
     /* Explanation sections */
     .explanation {
-        margin-top: 10px;
+        margin-top: 15px; /* Increased margin for better spacing */
         color: var(--text-secondary);
+        font-size: 1.1em; /* Slightly larger font size for explanations */
     }
     
     /* Advice box */
     .advice-box {
         background-color: var(--bg-tertiary);
-        padding: 15px;
+        padding: 20px;
         border-radius: 10px;
-        margin: 15px 0;
+        margin: 20px 0; /* Increased margin for better spacing */
         color: var(--text-primary);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
     }
     
     /* Header elements */
@@ -132,12 +153,17 @@ def apply_custom_css():
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 20px;
+        margin-bottom: 30px; /* Increased margin for better spacing */
+        padding: 20px; /* Padding for header */
+        background-color: var(--header-bg); /* Header background */
+        border-radius: 10px; /* Rounded corners for header */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
     }
     
     .header-text {
         color: var(--text-primary);
-        font-size: 2em;
+        font-size: 2.5em; /* Larger font size for header */
+        font-weight: bold; /* Bold header text */
     }
     
     /* Footer */
@@ -146,10 +172,11 @@ def apply_custom_css():
         bottom: 0;
         left: 0;
         width: 100%;
-        background-color: var(--bg-primary);
-        padding: 10px;
+        background-color: var(--footer-bg);
+        padding: 15px; /* Increased padding for footer */
         text-align: center;
         border-top: 1px solid var(--border-color);
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
     }
     
     .footer-text {
@@ -161,6 +188,7 @@ def apply_custom_css():
     .footer-link {
         color: var(--accent-primary);
         text-decoration: none;
+        font-weight: bold; /* Bold footer link */
     }
     
     /* Tabs styling */
@@ -172,6 +200,8 @@ def apply_custom_css():
         background-color: var(--bg-secondary);
         color: var(--text-primary);
         border-radius: 5px; /* Rounded corners for tabs */
+        padding: 10px; /* Padding for tabs */
+        transition: background-color 0.3s; /* Smooth transition */
     }
     
     .stTabs [aria-selected="true"] {
