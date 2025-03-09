@@ -212,7 +212,7 @@ def generate_groq_response(api_key, query, kural_data):
         response_data = response.json()
         return response_data["choices"][0]["message"]["content"]
     except requests.exceptions.RequestException as e:
-        st.error(f"API Error: {str(e)}")
+        # st.error(f"API Error: {str(e)}")
         return None
     except (KeyError, IndexError) as e:
         st.error(f"Unexpected response format: {str(e)}")
