@@ -293,7 +293,9 @@ def main():
     apply_custom_css()
     add_logo()
     add_footer()
-    
+    with st.sidebar:
+        st.title("திருக்குறள் AI")
+        page = st.radio("Navigate to:", ["Home", "About"])
     # Display sidebar info (no API key input)
     sidebar_info()
     
@@ -303,110 +305,113 @@ def main():
     except Exception as e:
         st.error(f"Error loading models: {str(e)}")
         return
-    
-    # User query input
-    query = st.text_input("உங்கள் கேள்விகளைத் தமிழில் அல்லது ஆங்கிலத்தில் கேளுங்கள் / Ask your questions in Tamil or English...", key="user_query")
-    
-    if st.button("பதிலைக் காண") or query:
-        if not query:
-            st.warning("தயவுசெய்து உங்கள் கேள்வியை உள்ளிடவும் / Please enter your query")
-            return
+    if page == "Home":
+        # User query input
+        query = st.text_input("உங்கள் கேள்விகளைத் தமிழில் அல்லது ஆங்கிலத்தில் கேளுங்கள் / Ask your questions in Tamil or English...", key="user_query")
         
-        with st.spinner("உங்கள் கேள்விக்கான பதிலைத் தேடுகிறேன்... / Searching for relevant Thirukkurals..."):
-            # Find relevant kurals
-            kural_results = find_relevant_kurals(query, df, tamil_index, english_index, model, top_k=5)
-            
-            if not kural_results:
-                st.error("No relevant Thirukkurals found. Please try a different query.")
+        if st.button("பதிலைக் காண") or query:
+            if not query:
+                st.warning("தயவுசெய்து உங்கள் கேள்வியை உள்ளிடவும் / Please enter your query")
                 return
             
-            best_kural = None
-            best_explanation = None
-            best_score = -1
-            
-            # Process each result and find the most relevant one
-            progress_bar = st.progress(0)
-            for i, result in enumerate(kural_results):
-                idx = result["index"]
-                kural_data = df.iloc[idx].to_dict()
+            with st.spinner("உங்கள் கேள்விக்கான பதிலைத் தேடுகிறேன்... / Searching for relevant Thirukkurals..."):
+                # Find relevant kurals
+                kural_results = find_relevant_kurals(query, df, tamil_index, english_index, model, top_k=5)
                 
-                # Generate explanation using Groq
-                groq_response = generate_groq_response(st.session_state.groq_api_key, query, kural_data)
-                if groq_response:
-                    parsed_response = parse_groq_response(groq_response)
+                if not kural_results:
+                    st.error("No relevant Thirukkurals found. Please try a different query.")
+                    return
+                
+                best_kural = None
+                best_explanation = None
+                best_score = -1
+                
+                # Process each result and find the most relevant one
+                progress_bar = st.progress(0)
+                for i, result in enumerate(kural_results):
+                    idx = result["index"]
+                    kural_data = df.iloc[idx].to_dict()
                     
-                    # Check relevance score
-                    relevance_score = parsed_response.get("relevance_score", 0)
+                    # Generate explanation using Groq
+                    groq_response = generate_groq_response(st.session_state.groq_api_key, query, kural_data)
+                    if groq_response:
+                        parsed_response = parse_groq_response(groq_response)
+                        
+                        # Check relevance score
+                        relevance_score = parsed_response.get("relevance_score", 0)
+                        
+                        if relevance_score > best_score:
+                            best_score = relevance_score
+                            best_kural = kural_data
+                            best_explanation = parsed_response
                     
-                    if relevance_score > best_score:
-                        best_score = relevance_score
-                        best_kural = kural_data
-                        best_explanation = parsed_response
+                    # Update progress
+                    progress_bar.progress((i + 1) / len(kural_results))
+                    time.sleep(0.1)  # Small delay to show progress
                 
-                # Update progress
-                progress_bar.progress((i + 1) / len(kural_results))
-                time.sleep(0.1)  # Small delay to show progress
-            
-            # Clear progress bar
-            progress_bar.empty()
-            
-            if best_kural and best_explanation:
-                # Create tabs for Tamil and English
-                tab1, tab2 = st.tabs(["தமிழ் / Tamil", "English / ஆங்கிலம்"])
+                # Clear progress bar
+                progress_bar.empty()
                 
-                # Tamil Content
-                with tab1:
-                    # Display the kural in a box
-                    st.markdown(f"""
-                    <div class="thirukkural-box">
-                        <p class="kural-text">{best_kural['Kural']}</p>
-                        <p><strong>திருக்குறள் எண்:</strong> {best_kural['ID']}</p>
-                        <p><strong>அதிகாரம்:</strong> {best_kural['Adhigaram']} | <strong>பால்:</strong> {best_kural['Paal']} | <strong>இயல்:</strong> {best_kural['Iyal']}</p>
-                        <div class="explanation">
-                            <p><strong>விளக்கம்:</strong> {best_kural['Vilakam']}</p>
-                            <p><strong>கலைஞர் உரை:</strong> {best_kural['Kalaingar_Urai']}</p>
+                if best_kural and best_explanation:
+                    # Create tabs for Tamil and English
+                    tab1, tab2 = st.tabs(["தமிழ் / Tamil", "English / ஆங்கிலம்"])
+                    
+                    # Tamil Content
+                    with tab1:
+                        # Display the kural in a box
+                        st.markdown(f"""
+                        <div class="thirukkural-box">
+                            <p class="kural-text">{best_kural['Kural']}</p>
+                            <p><strong>திருக்குறள் எண்:</strong> {best_kural['ID']}</p>
+                            <p><strong>அதிகாரம்:</strong> {best_kural['Adhigaram']} | <strong>பால்:</strong> {best_kural['Paal']} | <strong>இயல்:</strong> {best_kural['Iyal']}</p>
+                            <div class="explanation">
+                                <p><strong>விளக்கம்:</strong> {best_kural['Vilakam']}</p>
+                                <p><strong>கலைஞர் உரை:</strong> {best_kural['Kalaingar_Urai']}</p>
+                            </div>
                         </div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
-                    # Display AI explanation and advice
-                    st.markdown("### குறள் தொடர்புடைய விளக்கம்")
-                    st.markdown(best_explanation.get("tamil_explanation", "விளக்கம் இல்லை"))
-                    
-                    st.markdown("### ஆலோசனை")
-                    st.markdown(f"""
-                    <div class="advice-box">
-                        {best_explanation.get("tamil_advice", "ஆலோசனை இல்லை")}
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                # English Content
-                with tab2:
-                    # Display the kural in English
-                    st.markdown(f"""
-                    <div class="thirukkural-box">
-                        <p class="kural-text">{best_kural['Couplet']}</p>
-                        <p><strong>Kural Number:</strong> {best_kural['ID']}</p>
-                        <p><strong>Chapter:</strong> {best_kural['Chapter']} | <strong>Section:</strong> {best_kural['Section']}</p>
-                        <div class="explanation">
-                            <p><strong>Explanation:</strong> {best_kural['M_Varadharajanar']}</p>
-                            <p><strong>Detailed Explanation:</strong> {best_kural['Solomon_Pappaiya']}</p>
+                        """, unsafe_allow_html=True)
+                        
+                        # Display AI explanation and advice
+                        st.markdown("### குறள் தொடர்புடைய விளக்கம்")
+                        st.markdown(best_explanation.get("tamil_explanation", "விளக்கம் இல்லை"))
+                        
+                        st.markdown("### ஆலோசனை")
+                        st.markdown(f"""
+                        <div class="advice-box">
+                            {best_explanation.get("tamil_advice", "ஆலோசனை இல்லை")}
                         </div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                        """, unsafe_allow_html=True)
                     
-                    # Display AI explanation and advice in English
-                    st.markdown("### Relevance to Your Query")
-                    st.markdown(best_explanation.get("english_explanation", "No explanation available"))
-                    
-                    st.markdown("### Personal Advice")
-                    st.markdown(f"""
-                    <div class="advice-box">
-                        {best_explanation.get("english_advice", "No advice available")}
-                    </div>
-                    """, unsafe_allow_html=True)
-            else:
-                st.error("Could not find a relevant Thirukkural for your query. Please try a different question.")
+                    # English Content
+                    with tab2:
+                        # Display the kural in English
+                        st.markdown(f"""
+                        <div class="thirukkural-box">
+                            <p class="kural-text">{best_kural['Couplet']}</p>
+                            <p><strong>Kural Number:</strong> {best_kural['ID']}</p>
+                            <p><strong>Chapter:</strong> {best_kural['Chapter']} | <strong>Section:</strong> {best_kural['Section']}</p>
+                            <div class="explanation">
+                                <p><strong>Explanation:</strong> {best_kural['M_Varadharajanar']}</p>
+                                <p><strong>Detailed Explanation:</strong> {best_kural['Solomon_Pappaiya']}</p>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        # Display AI explanation and advice in English
+                        st.markdown("### Relevance to Your Query")
+                        st.markdown(best_explanation.get("english_explanation", "No explanation available"))
+                        
+                        st.markdown("### Personal Advice")
+                        st.markdown(f"""
+                        <div class="advice-box">
+                            {best_explanation.get("english_advice", "No advice available")}
+                        </div>
+                        """, unsafe_allow_html=True)
+                else:
+                    st.error("Could not find a relevant Thirukkural for your query. Please try a different question.")
+    else:
+        from about_page import about_page
+        about_page()
 
 if __name__ == "__main__":
     main()
