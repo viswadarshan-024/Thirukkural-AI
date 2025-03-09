@@ -305,7 +305,7 @@ def add_footer():
 def main():
     apply_custom_css()
     add_logo()
-    
+    add_footer()
     # Check if API key is set
     api_key_set = sidebar_settings()
     
@@ -423,7 +423,7 @@ def main():
                     """, unsafe_allow_html=True)
             else:
                 st.error("Could not find a relevant Thirukkural for your query. Please try a different question.")
-    add_footer() 
+     
 
 if __name__ == "__main__":
     main()
