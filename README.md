@@ -34,7 +34,7 @@ Try out: [Kural-AI](https://kural-ai.streamlit.app/)
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/your-username/thirukkural-ai.git
+https://github.com/viswadarshan-024/Thirukkural-AI.git
 cd thirukkural-ai
 ```
 
