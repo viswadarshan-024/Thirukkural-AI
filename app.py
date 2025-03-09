@@ -269,10 +269,45 @@ def parse_groq_response(response_text):
     
     return result
 
+def add_footer():
+    st.markdown("""
+    <div style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: #1a1a29; padding: 10px; text-align: center; border-top: 1px solid #373750;">
+        <p style="margin: 0; color: #b0b0b0; font-size: 0.9em;">
+            © 2025 | திருக்குறள் AI | உருவாக்கியவர்: விஸ்வதர்ஷன் | 
+            <a href="https://github.com/viswadarshan-024/Thirukkural-AI" style="color: #4d61fc; text-decoration: none;" target="_blank">
+                <span style="vertical-align: middle;">GitHub</span>
+            </a>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+def add_description():
+    st.markdown("""
+    <div style="background-color: #2d2d3a; padding: 15px; border-radius: 10px; margin: 20px 0;">
+        <h3>திருக்குறள் செயற்கை நுண்ணறிவு பற்றி</h3>
+        <p>இந்த செயலி உங்கள் வாழ்க்கை கேள்விகளுக்கு ஏற்ற திருக்குறளை கண்டறிந்து, அதன் அர்த்தத்தையும் உங்கள் சூழலுக்கேற்ற ஆலோசனைகளையும் வழங்குகிறது.</p>
+        
+        <h4>எடுத்துக்காட்டு கேள்விகள்:</h4>
+        <ul>
+            <li>நல்ல நண்பர்களை எப்படி தேர்ந்தெடுப்பது?</li>
+            <li>வெற்றியை அடைவதற்கான வழிகள் என்ன?</li>
+            <li>கோபத்தை எப்படி கட்டுப்படுத்துவது?</li>
+            <li>நல்ல குடும்ப வாழ்க்கை எப்படி அமைய வேண்டும்?</li>
+            <li>கடின நேரங்களில் எப்படி மனஉறுதியுடன் இருப்பது?</li>
+        </ul>
+        
+        <p>உங்கள் கேள்விகளை தமிழிலோ அல்லது ஆங்கிலத்திலோ கேட்கலாம். உங்கள் சூழலுக்கு பொருத்தமான திருக்குறளும் அதன் விளக்கமும் வழங்கப்படும்.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Call this function in your main() function, after add_logo() and before the user query input
+
+
 # Main app function
 def main():
     apply_custom_css()
     add_logo()
+    add_description()
     
     # Check if API key is set
     api_key_set = sidebar_settings()
@@ -391,6 +426,7 @@ def main():
                     """, unsafe_allow_html=True)
             else:
                 st.error("Could not find a relevant Thirukkural for your query. Please try a different question.")
+    add_footer() 
 
 if __name__ == "__main__":
     main()
