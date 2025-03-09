@@ -12,6 +12,14 @@ import time
 # Load environment variables
 load_dotenv()
 
+# Set your Groq API key directly in the code
+# You should replace this with your actual Groq API key
+GROQ_API_KEY = "your-actual-groq-api-key-here"
+
+# Store API key in session state for use throughout the app
+if 'groq_api_key' not in st.session_state:
+    st.session_state.groq_api_key = GROQ_API_KEY
+
 # Page configuration
 st.set_page_config(
     page_title="திருக்குறள் AI",
@@ -91,24 +99,11 @@ def add_logo():
     <p style="text-align: center; margin-bottom: 20px;">Experience the Profound Wisdom of Thirukkural, Reimagined</p>
     """, unsafe_allow_html=True)
 
-# Side panel for API key settings
-import streamlit as st
-
-import streamlit as st
-
-def sidebar_settings():
+# Modified sidebar - removed API key input
+def sidebar_info():
     with st.sidebar:
         st.title("⚙️ அமைப்புகள்")
-
-        # Groq API Key
-        groq_api_key = st.text_input("Groq API Key", type="password")
-
-        if groq_api_key:
-            st.success("API விசை சேமிக்கப்பட்டது!")
-
-            # Save the API key to session state
-            st.session_state.groq_api_key = groq_api_key
-
+        
         # Add description in sidebar
         st.markdown("---")
         st.markdown("""
@@ -121,11 +116,6 @@ def sidebar_settings():
         - கோபத்தை எப்படி கட்டுப்படுத்துவது?
         - நல்ல குடும்ப வாழ்க்கை எப்படி அமைய வேண்டும்?
         """)
-
-        if groq_api_key:
-            return True
-
-    return False
 
 # Load the vector DB and model
 @st.cache_resource
@@ -299,19 +289,14 @@ def add_footer():
     </div>
     """, unsafe_allow_html=True)
 
-
-
 # Main app function
 def main():
     apply_custom_css()
     add_logo()
     add_footer()
-    # Check if API key is set
-    api_key_set = sidebar_settings()
     
-    if not api_key_set:
-        st.warning("முதலில் சைட்பாரில் Groq API விசையை உள்ளிடவும் / Please enter Groq API key in the sidebar first")
-        return
+    # Display sidebar info (no API key input)
+    sidebar_info()
     
     # Load vector DB and models
     try:
@@ -423,7 +408,6 @@ def main():
                     """, unsafe_allow_html=True)
             else:
                 st.error("Could not find a relevant Thirukkural for your query. Please try a different question.")
-     
 
 if __name__ == "__main__":
     main()
