@@ -26,7 +26,7 @@ Try out: [Kural-AI](https://kural-ai.streamlit.app/)
 ## 📋 Requirements
 
 - Python 3.8+
-- Groq API key
+- Groq API key ([Get it](https://console.groq.com/keys))
 - Internet connection for API calls
 
 ## 🚀 Installation & Setup
