@@ -86,10 +86,10 @@ def apply_custom_css():
 def add_logo():
     st.markdown("""
     <div class="header-container">
-        <img src="https://img.icons8.com/color/48/000000/tamil-nadu.png" class="header-logo">
-        <div class="header-text">தமிழ் தகவல் உதவியாளர்</div>
+        # <img src="https://img.icons8.com/color/48/000000/tamil-nadu.png" class="header-logo">
+        <div class="header-text">Thirukkural AI</div>
     </div>
-    <p style="text-align: center; margin-bottom: 20px;">தமிழ் வரலாறு, இலக்கியம், பண்பாடு பற்றிய உங்கள் கேள்விகளுக்கு துல்லியமான பதில்களைப் பெறுங்கள்</p>
+    <p style="text-align: center; margin-bottom: 20px;">Experience the Profound Wisdom of Thirukkural, Reimagined</p>
     """, unsafe_allow_html=True)
 
 # Side panel for API key settings
@@ -290,7 +290,7 @@ def main():
         return
     
     # User query input
-    query = st.text_input("உங்கள் கேள்விகளை தமிழில் கேளுங்கள்... / Ask your questions in Tamil...", key="user_query")
+    query = st.text_input("உங்கள் கேள்விகளைத் தமிழில் அல்லது ஆங்கிலத்தில் கேளுங்கள் / Ask your questions in Tamil or English...", key="user_query")
     
     if st.button("பதிலைக் காண") or query:
         if not query:
