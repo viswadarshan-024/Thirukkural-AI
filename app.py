@@ -95,20 +95,9 @@ def add_logo():
 def sidebar_settings():
     with st.sidebar:
         st.title("⚙️ அமைப்புகள்")
-        # add_description()
-        # Groq API Key
-        groq_api_key = st.text_input("Groq API Key", type="password")
         
-        if groq_api_key:
-            st.success("API விசை சேமிக்கப்பட்டது!")
-            
-            # Save the API key to session state
-            st.session_state.groq_api_key = groq_api_key
-            
-            return True
-    
-    return False
-    st.markdown("""
+        # Add description in sidebar
+        st.markdown("""
         <div style="background-color: #2d2d3a; padding: 15px; border-radius: 10px; margin: 20px 0;">
             <h3>திருக்குறள் செயற்கை நுண்ணறிவு பற்றி</h3>
             <p>இந்த செயலி உங்கள் வாழ்க்கை கேள்விகளுக்கு ஏற்ற திருக்குறளை கண்டறிந்து, அதன் அர்த்தத்தையும் உங்கள் சூழலுக்கேற்ற ஆலோசனைகளையும் வழங்குகிறது.</p>
@@ -125,6 +114,20 @@ def sidebar_settings():
             <p>உங்கள் கேள்விகளை தமிழிலோ அல்லது ஆங்கிலத்திலோ கேட்கலாம். உங்கள் சூழலுக்கு பொருத்தமான திருக்குறளும் அதன் விளக்கமும் வழங்கப்படும்.</p>
         </div>
         """, unsafe_allow_html=True)
+        
+        # Groq API Key
+        groq_api_key = st.text_input("Groq API Key", type="password")
+        
+        if groq_api_key:
+            st.success("API விசை சேமிக்கப்பட்டது!")
+            
+            # Save the API key to session state
+            st.session_state.groq_api_key = groq_api_key
+            
+            return True
+    
+    return False
+
 
 # Load the vector DB and model
 @st.cache_resource
