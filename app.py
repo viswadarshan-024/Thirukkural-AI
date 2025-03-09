@@ -86,7 +86,6 @@ def apply_custom_css():
 def add_logo():
     st.markdown("""
     <div class="header-container">
-        # <img src="https://img.icons8.com/color/48/000000/tamil-nadu.png" class="header-logo">
         <div class="header-text">Thirukkural AI</div>
     </div>
     <p style="text-align: center; margin-bottom: 20px;">Experience the Profound Wisdom of Thirukkural, Reimagined</p>
