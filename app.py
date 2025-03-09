@@ -31,61 +31,150 @@ st.set_page_config(
 def apply_custom_css():
     st.markdown("""
     <style>
+    /* Theme detection */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg-primary: #1a1a29;
+            --bg-secondary: #2d2d3a;
+            --bg-tertiary: #373750;
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --accent-primary: #4d61fc;
+            --accent-secondary: #ffcc00;
+            --border-color: #4d4d65;
+            --input-bg: #2d2d3a;
+            --input-text: white;
+        }
+    }
+    
+    @media (prefers-color-scheme: light) {
+        :root {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #e9ecef;
+            --bg-tertiary: #dee2e6;
+            --text-primary: #212529;
+            --text-secondary: #495057;
+            --accent-primary: #3949cc;
+            --accent-secondary: #d69e00;
+            --border-color: #ced4da;
+            --input-bg: #ffffff;
+            --input-text: #212529;
+        }
+    }
+    
+    /* Base styles */
     .main {
-        background-color: #1a1a29;
-        color: white;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
     }
+    
+    /* Input elements */
     .stTextInput > div > div > input {
-        background-color: #2d2d3a;
-        color: white;
+        background-color: var(--input-bg);
+        color: var(--input-text);
+        border: 1px solid var(--border-color);
     }
+    
+    /* Buttons */
     .stButton > button {
-        background-color: #4d61fc;
+        background-color: var(--accent-primary);
         color: white;
     }
+    
+    /* Thirukkural box */
     .thirukkural-box {
-        background-color: #2d2d3a;
+        background-color: var(--bg-secondary);
         padding: 20px;
         border-radius: 10px;
         margin: 10px 0;
-        border-left: 5px solid #4d61fc;
+        border-left: 5px solid var(--accent-primary);
+        color: var(--text-primary);
     }
+    
+    /* Kural text highlight */
     .kural-text {
         font-size: 1.5em;
         font-weight: bold;
-        color: #ffcc00;
+        color: var(--accent-secondary);
     }
+    
+    /* Explanation sections */
     .explanation {
         margin-top: 10px;
+        color: var(--text-secondary);
     }
+    
+    /* Advice box */
     .advice-box {
-        background-color: #373750;
+        background-color: var(--bg-tertiary);
         padding: 15px;
         border-radius: 10px;
         margin: 15px 0;
+        color: var(--text-primary);
     }
-    .tab-container {
-        margin-top: 20px;
-    }
+    
+    /* Header elements */
     .header-container {
         display: flex;
         align-items: center;
         justify-content: center;
         margin-bottom: 20px;
     }
+    
     .header-logo {
         height: 40px;
         margin-right: 10px;
     }
+    
     .header-text {
-        color: white;
+        color: var(--text-primary);
         font-size: 2em;
     }
+    
+    /* API section */
     .api-section {
-        background-color: #2d2d3a;
+        background-color: var(--bg-secondary);
         padding: 15px;
         border-radius: 10px;
         margin: 10px 0;
+    }
+    
+    /* Footer */
+    .app-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: var(--bg-primary);
+        padding: a0px;
+        text-align: center;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .footer-text {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.9em;
+    }
+    
+    .footer-link {
+        color: var(--accent-primary);
+        text-decoration: none;
+    }
+    
+    /* Tabs styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 2px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background-color: var(--accent-primary) !important;
+        color: white !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -278,10 +367,10 @@ def parse_groq_response(response_text):
 
 def add_footer():
     st.markdown("""
-    <div style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: #1a1a29; padding: 10px; text-align: center; border-top: 1px solid #373750;">
-        <p style="margin: 0; color: #b0b0b0; font-size: 0.9em;">
+    <div class="app-footer">
+        <p class="footer-text">
             © 2025 | திருக்குறள் AI | Developed By : Viswadarshan | 
-            <a href="https://github.com/viswadarshan-024/Thirukkural-AI" style="color: #4d61fc; text-decoration: none;" target="_blank">
+            <a href="https://github.com/viswadarshan-024/Thirukkural-AI" class="footer-link" target="_blank">
                 <span style="vertical-align: middle;">GitHub</span>
             </a>
         </p>
