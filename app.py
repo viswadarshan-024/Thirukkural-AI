@@ -34,31 +34,35 @@ def apply_custom_css():
     /* Theme detection */
     @media (prefers-color-scheme: dark) {
         :root {
-            --bg-primary: #1a1a29;
-            --bg-secondary: #2d2d3a;
-            --bg-tertiary: #373750;
-            --text-primary: #ffffff;
-            --text-secondary: #e0e0e0;
-            --accent-primary: #4d61fc;
-            --accent-secondary: #ffcc00;
-            --border-color: #4d4d65;
-            --input-bg: #2d2d3a;
-            --input-text: white;
+            --bg-primary: #121212; /* Dark background */
+            --bg-secondary: #1e1e1e; /* Slightly lighter dark */
+            --bg-tertiary: #2a2a2a; /* Tertiary background */
+            --text-primary: #e0e0e0; /* Light grey text */
+            --text-secondary: #b0b0b0; /* Medium grey text */
+            --accent-primary: #bb86fc; /* Purple accent */
+            --accent-secondary: #03dac6; /* Teal accent */
+            --border-color: #444; /* Dark border */
+            --input-bg: #1e1e1e; /* Input background */
+            --input-text: #ffffff; /* Input text color */
+            --button-bg: #bb86fc; /* Button background */
+            --button-text: #ffffff; /* Button text color */
         }
     }
     
     @media (prefers-color-scheme: light) {
         :root {
-            --bg-primary: #f8f9fa;
-            --bg-secondary: #e9ecef;
-            --bg-tertiary: #dee2e6;
-            --text-primary: #212529;
-            --text-secondary: #495057;
-            --accent-primary: #3949cc;
-            --accent-secondary: #d69e00;
-            --border-color: #ced4da;
-            --input-bg: #ffffff;
-            --input-text: #212529;
+            --bg-primary: #ffffff; /* White background */
+            --bg-secondary: #f8f9fa; /* Light grey */
+            --bg-tertiary: #e0e0e0; /* Tertiary background */
+            --text-primary: #212529; /* Dark text */
+            --text-secondary: #495057; /* Medium grey text */
+            --accent-primary: #6200ee; /* Purple accent */
+            --accent-secondary: #ff9800; /* Orange accent */
+            --border-color: #ced4da; /* Light border */
+            --input-bg: #ffffff; /* Input background */
+            --input-text: #212529; /* Input text color */
+            --button-bg: #6200ee; /* Button background */
+            --button-text: #ffffff; /* Button text color */
         }
     }
     
@@ -73,12 +77,22 @@ def apply_custom_css():
         background-color: var(--input-bg);
         color: var(--input-text);
         border: 1px solid var(--border-color);
+        border-radius: 5px; /* Rounded corners for inputs */
+        padding: 10px; /* Padding for better touch targets */
     }
     
     /* Buttons */
     .stButton > button {
-        background-color: var(--accent-primary);
-        color: white;
+        background-color: var(--button-bg);
+        color: var(--button-text);
+        border: none; /* Remove default border */
+        border-radius: 5px; /* Rounded corners for buttons */
+        padding: 10px 15px; /* Padding for better touch targets */
+        transition: background-color 0.3s; /* Smooth transition */
+    }
+    
+    .stButton > button:hover {
+        background-color: var(--accent-secondary); /* Change on hover */
     }
     
     /* Thirukkural box */
@@ -121,22 +135,9 @@ def apply_custom_css():
         margin-bottom: 20px;
     }
     
-    .header-logo {
-        height: 40px;
-        margin-right: 10px;
-    }
-    
     .header-text {
         color: var(--text-primary);
         font-size: 2em;
-    }
-    
-    /* API section */
-    .api-section {
-        background-color: var(--bg-secondary);
-        padding: 15px;
-        border-radius: 10px;
-        margin: 10px 0;
     }
     
     /* Footer */
@@ -146,7 +147,7 @@ def apply_custom_css():
         left: 0;
         width: 100%;
         background-color: var(--bg-primary);
-        padding: a0px;
+        padding: 10px;
         text-align: center;
         border-top: 1px solid var(--border-color);
     }
@@ -170,6 +171,7 @@ def apply_custom_css():
     .stTabs [data-baseweb="tab"] {
         background-color: var(--bg-secondary);
         color: var(--text-primary);
+        border-radius: 5px; /* Rounded corners for tabs */
     }
     
     .stTabs [aria-selected="true"] {
