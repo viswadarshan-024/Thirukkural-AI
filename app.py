@@ -365,12 +365,23 @@ def parse_groq_response(response_text):
     
     return result
 
+# def add_footer():
+#     st.markdown("""
+#     <div class="app-footer">
+#         <p class="footer-text">
+#             © 2025 | திருக்குறள் AI | Developed By : Viswadarshan | 
+#             <a href="https://github.com/viswadarshan-024/Thirukkural-AI" class="footer-link" target="_blank">
+#                 <span style="vertical-align: middle;">GitHub</span>
+#             </a>
+#         </p>
+#     </div>
+#     """, unsafe_allow_html=True)
 def add_footer():
     st.markdown("""
-    <div class="app-footer">
-        <p class="footer-text">
+    <div style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: #1a1a29; padding: 10px; text-align: center; border-top: 1px solid #373750;">
+        <p style="margin: 0; color: #b0b0b0; font-size: 0.9em;">
             © 2025 | திருக்குறள் AI | Developed By : Viswadarshan | 
-            <a href="https://github.com/viswadarshan-024/Thirukkural-AI" class="footer-link" target="_blank">
+            <a href="https://github.com/viswadarshan-024/Thirukkural-AI" style="color: #4d61fc; text-decoration: none;" target="_blank">
                 <span style="vertical-align: middle;">GitHub</span>
             </a>
         </p>
