@@ -44,6 +44,8 @@ def apply_custom_css():
             --border-color: #444; /* Dark border */
             --input-bg: #242424; /* Input background */
             --input-text: #ffffff; /* Input text color */
+            --input-border: #555; /* Input border color */
+            --input-border-focus: #bb86fc; /* Input border color on focus */
             --button-bg: #bb86fc; /* Button background */
             --button-text: #ffffff; /* Button text color */
             --header-bg: #1e1e1e; /* Header background */
@@ -63,6 +65,8 @@ def apply_custom_css():
             --border-color: #ced4da; /* Light border */
             --input-bg: #ffffff; /* Input background */
             --input-text: #212529; /* Input text color */
+            --input-border: #ced4da; /* Input border color */
+            --input-border-focus: #6200ee; /* Input border color on focus */
             --button-bg: #6200ee; /* Button background */
             --button-text: #ffffff; /* Button text color */
             --header-bg: #f1f1f1; /* Header background */
@@ -83,16 +87,19 @@ def apply_custom_css():
     .stTextInput > div > div > input {
         background-color: var(--input-bg);
         color: var(--input-text);
-        border: 1px solid var(--border-color);
-        border-radius: 5px; /* Rounded corners for inputs */
-        padding: 12px; /* Padding for better touch targets */
-        margin-bottom: 15px; /* Spacing below input fields */
-        transition: border-color 0.3s; /* Smooth transition */
+        border: 1px solid var(--input-border);
+        border-radius: 8px; /* Rounded corners for inputs */
+        padding: 12px 15px; /* Padding for better touch targets */
+        margin-bottom: 20px; /* Spacing below input fields */
+        transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition */
+        font-size: 1em; /* Font size for input */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
     }
     
     .stTextInput > div > div > input:focus {
-        border-color: var(--accent-primary); /* Highlight on focus */
+        border-color: var(--input-border-focus); /* Highlight on focus */
         outline: none; /* Remove default outline */
+        box-shadow: 0 0 5px var(--input-border-focus); /* Glow effect on focus */
     }
     
     /* Buttons */
