@@ -24,8 +24,14 @@ if 'api_keys' not in st.session_state:
     st.session_state.api_keys = API_KEYS
 
 # Function to get a random API key from the pool
-def get_random_api_key():
-    return random.choice(st.session_state.api_keys)
+def get_sequential_api_key():
+    if 'api_key_index' not in st.session_state:
+        st.session_state.api_key_index = 0
+    
+    api_key = st.session_state.api_keys[st.session_state.api_key_index]
+    st.session_state.api_key_index = (st.session_state.api_key_index + 1) % len(st.session_state.api_keys)
+    
+    return api_key
 
 # Page configuration
 st.set_page_config(
@@ -753,7 +759,7 @@ def main():
             
             # Step 2: Evaluate candidates with LLM
             evaluation_response = evaluate_candidates(
-                get_random_api_key(), query, candidates, df
+                get_sequential_api_key(), query, candidates, df
             )
             
             if not evaluation_response:
@@ -773,7 +779,7 @@ def main():
                 
                 # Perform refined search
                 refined_kural_data = perform_refined_search(
-                    get_random_api_key(), 
+                    get_sequential_api_key(), 
                     query, 
                     df,
                     evaluation_results.get("alternative_suggestion", "")
@@ -794,7 +800,7 @@ def main():
             
             # Step 4: Generate personalized explanation and advice
             explanation_response = generate_response_for_kural(
-                get_random_api_key(),
+                get_sequential_api_key(),
                 query,
                 selected_kural_data,
                 evaluation_results.get("query_analysis", "")
