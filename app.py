@@ -666,52 +666,30 @@ def display_search_results(candidates, df, evaluation_results):
 
 # Function to display the final Thirukkural explanation
 def display_thirukkural_explanation(kural_data, explanation_data, tab_option="bilingual"):
-    st.markdown(f"""
-    <div class="thirukkural-box">
-        <h3>திருக்குறள் #{kural_data['ID']} - {kural_data['Chapter']}</h3>
-        <div class="kural-text">{kural_data['Kural']}</div>
-        <div><em>{kural_data['Couplet']}</em></div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"### திருக்குறள் #{kural_data['ID']} - {kural_data['Chapter']}")
+    st.markdown(f"**{kural_data['Kural']}**")
+    st.markdown(f"*{kural_data['Couplet']}*")
 
-    # Display explanations based on the selected language tab
     if tab_option == "tamil":
         st.markdown("### குறள் தொடர்புடைய விளக்கம்")
-        st.markdown(best_explanation.get("tamil_explanation", "விளக்கம் இல்லை"))
-            
-            st.markdown("### ஆலோசனை")
-            st.markdown(f"""
-            <div class="advice-box">
-            {best_explanation.get("tamil_advice", "ஆலோசனை இல்லை")}
-            </div>
-            """, unsafe_allow_html=True)
+        st.markdown(explanation_data.get("tamil_explanation", "விளக்கம் இல்லை"))
+        
+        st.markdown("### ஆலோசனை")
+        st.markdown(explanation_data.get("tamil_advice", "ஆலோசனை இல்லை"))
     elif tab_option == "english":
-        st.markdown(f"""
         st.markdown("### Relevance to Your Query")
-        st.markdown(best_explanation.get("english_explanation", "No explanation available"))
-            
+        st.markdown(explanation_data.get("english_explanation", "No explanation available"))
+        
         st.markdown("### Personal Advice")
-        st.markdown(f"""
-        <div class="advice-box">
-        {best_explanation.get("english_advice", "No advice available")}
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(explanation_data.get("english_advice", "No advice available"))
     else:  # bilingual
-        st.markdown(f"""
-        <div class="explanation">
-            <h4>விளக்கம் (Explanation):</h4>
-            <p>{explanation_data.get('tamil_explanation', '')}</p>
-            <p>{explanation_data.get('english_explanation', '')}</p>
-            
-            <h4>ஆலோசனை (Advice):</h4>
-            <div class="advice-box">
-                <p><strong>ஆலோசனை (Tamil):</strong> {explanation_data.get('tamil_advice', '')}</p>
-            </div>
-            <div class="advice-box">
-                <p><strong>Advice (English):</strong> {explanation_data.get('english_advice', '')}</p>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("### விளக்கம் (Explanation)")
+        st.markdown(explanation_data.get('tamil_explanation', ''))
+        st.markdown(explanation_data.get('english_explanation', ''))
+        
+        st.markdown("### ஆலோசனை (Advice)")
+        st.markdown(f"**ஆலோசனை (Tamil):** {explanation_data.get('tamil_advice', '')}")
+        st.markdown(f"**Advice (English):** {explanation_data.get('english_advice', '')}")
 
 import logging
 
