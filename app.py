@@ -679,13 +679,20 @@ def display_thirukkural_explanation(kural_data, explanation_data, tab_option="bi
         st.markdown(explanation_data.get("tamil_explanation", "விளக்கம் இல்லை"))
         
         st.markdown("### ஆலோசனை")
-        st.markdown(explanation_data.get("tamil_advice", "ஆலோசனை இல்லை"))
+        <div class="advice-box">
+        {explanation_data.get("tamil_advice", "ஆலோசனை இல்லை")}
+        </div>
+        """, unsafe_allow_html=True)
     elif tab_option == "english":
         st.markdown("### Relevance to Your Query")
         st.markdown(explanation_data.get("english_explanation", "No explanation available"))
         
         st.markdown("### Personal Advice")
-        st.markdown(explanation_data.get("english_advice", "No advice available"))
+        st.markdown(f"""
+        <div class="advice-box">
+        {explanation_data.get("english_advice", "No advice available")}
+        </div>
+        """, unsafe_allow_html=True)
     else:  # bilingual
         st.markdown("### விளக்கம் (Explanation)")
         st.markdown(explanation_data.get('tamil_explanation', ''))
