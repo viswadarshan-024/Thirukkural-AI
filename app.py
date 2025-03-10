@@ -454,6 +454,16 @@ def generate_response_for_kural(api_key, query, kural_data, query_analysis=""):
     except (KeyError, IndexError) as e:
         st.error(f"Unexpected response format: {str(e)}")
         return None
+def add_footer():
+    st.markdown("""
+    <div class="app-footer">
+        <p class="footer-text">
+            திருக்குறள் AI © 2025 | Created with ❤ | 
+            <a href="https://github.com/yourusername/thirukkural-ai" target="_blank" class="footer-link">GitHub</a>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
 
 # Parse evaluation response to get scores, best candidate, etc.
 def parse_evaluation_response(response_text):
