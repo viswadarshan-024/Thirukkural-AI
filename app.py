@@ -15,7 +15,7 @@ from about_page import about_page  # Import the about_page function
 load_dotenv()
 
 # Load multiple Groq API keys from the environment
-API_KEYS = ["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", "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", "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"]
+API_KEYS = ["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", "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", "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", "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", "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"]
 if not API_KEYS:
     raise ValueError("No API keys found.")
 
