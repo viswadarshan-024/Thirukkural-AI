@@ -36,18 +36,262 @@ st.set_page_config(
 
 # Custom CSS for the app
 def apply_custom_css():
-    st.markdown(""" ... (your existing CSS code) ... """, unsafe_allow_html=True)
+    st.markdown("""
+    <style>
+    /* Theme detection */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg-primary: #181818; /* Dark background */
+            --bg-secondary: #242424; /* Slightly lighter dark */
+            --bg-tertiary: #2e2e2e; /* Tertiary background */
+            --text-primary: #e0e0e0; /* Light grey text */
+            --text-secondary: #b0b0b0; /* Medium grey text */
+            --accent-primary: #bb86fc; /* Purple accent */
+            --accent-secondary: #03dac6; /* Teal accent */
+            --border-color: #444; /* Dark border */
+            --input-bg: #242424; /* Input background */
+            --input-text: #ffffff; /* Input text color */
+            --input-border: #555; /* Input border color */
+            --input-border-focus: #bb86fc; /* Input border color on focus */
+            --button-bg: #bb86fc; /* Button background */
+            --button-text: #ffffff; /* Button text color */
+            --header-bg: #1e1e1e; /* Header background */
+            --footer-bg: #181818; /* Footer background */
+        }
+    }
+    
+    @media (prefers-color-scheme: light) {
+        :root {
+            --bg-primary: #ffffff; /* White background */
+            --bg-secondary: #f8f9fa; /* Light grey */
+            --bg-tertiary: #e0e0e0; /* Tertiary background */
+            --text-primary: #212529; /* Dark text */
+            --text-secondary: #495057; /* Medium grey text */
+            --accent-primary: #6200ee; /* Purple accent */
+            --accent-secondary: #ff9800; /* Orange accent */
+            --border-color: #ced4da; /* Light border */
+            --input-bg: #ffffff; /* Input background */
+            --input-text: #212529; /* Input text color */
+            --input-border: #ced4da; /* Input border color */
+            --input-border-focus: #6200ee; /* Input border color on focus */
+            --button-bg: #6200ee; /* Button background */
+            --button-text: #ffffff; /* Button text color */
+            --header-bg: #f1f1f1; /* Header background */
+            --footer-bg: #f8f9fa; /* Footer background */
+        }
+    }
+    
+    /* Base styles */
+    .main {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: 'Arial', sans-serif; /* Classic font */
+        line-height: 1.6; /* Improved line height for readability */
+        padding: 20px; /* General padding for the main content */
+    }
+    
+    /* Input elements */
+    .stTextInput > div > div > input {
+        background-color: var(--input-bg);
+        color: var(--input-text);
+        border: 1px solid var(--input-border);
+        border-radius: 8px; /* Rounded corners for inputs */
+        padding: 12px 15px; /* Padding for better touch targets */
+        margin-bottom: 20px; /* Spacing below input fields */
+        transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition */
+        font-size: 1em; /* Font size for input */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    }
+    
+    .stTextInput > div > div > input:focus {
+        border-color: var(--input-border-focus); /* Highlight on focus */
+        outline: none; /* Remove default outline */
+        box-shadow: 0 0 5px var(--input-border-focus); /* Glow effect on focus */
+    }
+    
+    /* Buttons */
+    .stButton > button {
+        background-color: var(--button-bg);
+        color: var(--button-text);
+        border: none; /* Remove default border */
+        border-radius: 5px; /* Rounded corners for buttons */
+        padding: 12px 20px; /* Padding for better touch targets */
+        margin-top: 10px; /* Spacing above buttons */
+        transition: background-color 0.3s, transform 0.2s; /* Smooth transition */
+        cursor: pointer; /* Pointer cursor on hover */
+    }
+    
+    .stButton > button:hover {
+        background-color: var(--accent-secondary); /* Change on hover */
+        transform: translateY(-2px); /* Slight lift effect */
+    }
+    
+    /* Thirukkural box */
+    .thirukkural-box {
+        background-color: var(--bg-secondary);
+        padding: 25px;
+        border-radius: 10px;
+        margin: 20px 0; /* Increased margin for better spacing */
+        border-left: 5px solid var(--accent-primary);
+        color: var(--text-primary);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    }
+    
+    /* Kural text highlight */
+    .kural-text {
+        font-size: 1.6em; /* Slightly larger font size */
+        font-weight: bold;
+        color: var(--accent-secondary);
+        margin-bottom: 10px; /* Spacing below kural text */
+    }
+    
+    /* Explanation sections */
+    .explanation {
+        margin-top: 15px; /* Increased margin for better spacing */
+        color: var(--text-secondary);
+        font-size: 1.1em; /* Slightly larger font size for explanations */
+    }
+    
+    /* Advice box */
+    .advice-box {
+        background-color: var(--bg-tertiary);
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0; /* Increased margin for better spacing */
+        color: var(--text-primary);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    }
+    
+    /* Header elements */
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 30px; /* Increased margin for better spacing */
+        padding: 20px; /* Padding for header */
+        background-color: var(--header-bg); /* Header background */
+        border-radius: 10px; /* Rounded corners for header */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    }
+    
+    .header-text {
+        color: var(--text-primary);
+        font-size: 2.5em; /* Larger font size for header */
+        font-weight: bold; /* Bold header text */
+    }
+    
+    /* Footer */
+    .app-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: var(--footer-bg);
+        padding: 15px; /* Increased padding for footer */
+        text-align: center;
+        border-top: 1px solid var(--border-color);
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    }
+    
+    .footer-text {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.9em;
+    }
+    
+    .footer-link {
+        color: var(--accent-primary);
+        text-decoration: none;
+        font-weight: bold; /* Bold footer link */
+    }
+    
+    /* Tabs styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 2px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        border-radius: 5px; /* Rounded corners for tabs */
+        padding: 10px; /* Padding for tabs */
+        transition: background-color 0.3s; /* Smooth transition */
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background-color: var(--accent-primary) !important;
+        color: white !important;
+    }
+
+    /* Added styles for search results visualization */
+    .search-result-item {
+        background-color: var(--bg-secondary);
+        padding: 15px;
+        border-radius: 10px;
+        margin: 10px 0;
+        border-left: 3px solid var(--accent-primary);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .search-result-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .search-result-item.selected {
+        border-left: 8px solid var(--accent-secondary);
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
+    }
+    
+    .relevance-indicator {
+        position: relative;
+        height: 8px;
+        background-color: var(--bg-tertiary);
+        border-radius: 4px;
+        margin-top: 10px;
+    }
+    
+    .relevance-bar {
+        position: absolute;
+        height: 100%;
+        border-radius: 4px;
+        background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    }
+    
+    .query-analysis {
+        background-color: var(--bg-tertiary);
+        padding: 15px;
+        border-radius: 10px;
+        margin: 15px 0;
+        border-left: 5px solid var(--accent-secondary);
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 
 # Add Tamil logo
 def add_logo():
-    st.markdown(""" ... (your existing logo code) ... """, unsafe_allow_html=True)
+    st.markdown("""
+    <div class="header-container">
+        <div class="header-text"><strong>📖 திருக்குறள் AI</strong></div>
+    </div>
+    <p style="text-align: center; margin-bottom: 20px;">Experience the Profound Wisdom of Thirukkural, Reimagined</p>
+    """, unsafe_allow_html=True)
 
 # Modified sidebar - removed API key input
 def sidebar_info():
     with st.sidebar:
         st.title("திருக்குறள் AI பற்றி")
         st.markdown("---")
-        st.markdown(""" ... (your existing sidebar code) ... """)
+        st.markdown("""
+        ### இந்த செயலி உங்கள் வாழ்க்கை கேள்விகளுக்கு ஏற்ற திருக்குறளைக் கண்டறிந்து, அதன் அர்த்தத்தையும் உங்கள் சூழலுக்கேற்ற ஆலோசனைகளையும் வழங்குகிறது.
+
+        எடுத்துக்காட்டு கேள்விகள்:
+        - நல்ல நண்பர்களை எப்படி தேர்ந்தெடுப்பது?
+        - கடின நேரங்களில் எப்படி மனஉறுதியுடன் இருப்பது?
+        - கோபத்தை எப்படி கட்டுப்படுத்துவது?
+        - நல்ல குடும்ப வாழ்க்கை எப்படி அமைய வேண்டும்?
+        """)
         st.markdown("---")
         st.markdown("### Advanced Settings")
         st.session_state.show_process = st.checkbox("Show search process", value=False, 
@@ -140,7 +384,7 @@ def evaluate_candidates(api_key, query, candidate_kurals, df):
         "model": "llama-3.3-70b-versatile",
         "messages": [{"role": "user", "content": prompt}],
         "temperature": st.session_state.temperature,
-        "max_tokens": 2048
+        "max_tokens": 16000
     }
     try:
         response = requests.post(url, headers=headers, json=data)
@@ -341,7 +585,16 @@ def perform_refined_search(api_key, query, df, alternative_suggestion):
         return None
 
 def add_footer():
-    st.markdown(""" ... (your existing footer code) ... """, unsafe_allow_html=True)
+    st.markdown("""
+    <div style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: #1a1a29; padding: 10px; text-align: center; border-top: 1px solid #373750;">
+        <p style="margin: 0; color: #b0b0b0; font-size: 0.9em;">
+            © 2025 | திருக்குறள் AI | Developed By : Viswadarshan | 
+            <a href="https://github.com/viswadarshan-024/Thirukkural-AI" style="color: #4d61fc; text-decoration: none;" target="_blank">
+                <span style="vertical-align: middle;">GitHub</span>
+            </a>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # Function to display search results with visualization
 def display_search_results(candidates, df, evaluation_results):
