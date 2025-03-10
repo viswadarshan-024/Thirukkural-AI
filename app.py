@@ -406,10 +406,10 @@ def evaluate_candidates(api_key, query, candidate_kurals, df):
         response_data = response.json()
         return response_data["choices"][0]["message"]["content"]
     except requests.exceptions.RequestException as e:
-        st.error(f"API Error: {str(e)}")
+        st.error("⚠️ We are experiencing heavy API load. Please try again in a few moments.")
         return None
     except (KeyError, IndexError) as e:
-        st.error(f"Unexpected response format: {str(e)}")
+        st.error("⚠️ We are experiencing heavy API load. Please try again in a few moments.")
         return None
 
 # Generate explanation and advice using Groq API
@@ -458,10 +458,10 @@ def generate_response_for_kural(api_key, query, kural_data, query_analysis=""):
         response_data = response.json()
         return response_data["choices"][0]["message"]["content"]
     except requests.exceptions.RequestException as e:
-        st.error(f"API Error: {str(e)}")
+        st.error("⚠️ We are experiencing heavy API load. Please try again in a few moments.")
         return None
     except (KeyError, IndexError) as e:
-        st.error(f"Unexpected response format: {str(e)}")
+        st.error("⚠️ We are experiencing heavy API load. Please try again in a few moments.")
         return None
 def add_footer():
     st.markdown("""
