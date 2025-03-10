@@ -666,9 +666,13 @@ def display_search_results(candidates, df, evaluation_results):
 
 # Function to display the final Thirukkural explanation
 def display_thirukkural_explanation(kural_data, explanation_data, tab_option="bilingual"):
-    st.markdown(f"### திருக்குறள் #{kural_data['ID']} - {kural_data['Chapter']}")
-    st.markdown(f"**{kural_data['Kural']}**")
-    st.markdown(f"*{kural_data['Couplet']}*")
+    st.markdown(f"""
+    <div class="thirukkural-box">
+        <h3>திருக்குறள் #{kural_data['ID']} - {kural_data['Chapter']}</h3>
+        <div class="kural-text">{kural_data['Kural']}</div>
+        <div><em>{kural_data['Couplet']}</em></div>
+    </div>
+    """, unsafe_allow_html=True)
 
     if tab_option == "tamil":
         st.markdown("### குறள் தொடர்புடைய விளக்கம்")
