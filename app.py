@@ -700,7 +700,7 @@ def main():
     df, tamil_index, english_index, model = load_vector_db()
     
     # Main content
-    st.markdown("#### Ask for wisdom and guidance based on Thirukkural")
+    # st.markdown("#### Ask for wisdom and guidance based on Thirukkural")
     query = st.text_input("Enter your question or life situation:",
                          placeholder="E.g., How do I choose good friends?")
     
