@@ -725,6 +725,8 @@ def main():
     
     # Add sidebar information
     sidebar_info()
+    # Add footer
+    add_footer()
     
     # Load vector DB and model
     df, tamil_index, english_index, model = load_vector_db()
@@ -851,8 +853,7 @@ def main():
     if query:
         st.session_state.last_query = query
     
-    # Add footer
-    add_footer()
+    
 
 # Run the app
 if __name__ == "__main__":
