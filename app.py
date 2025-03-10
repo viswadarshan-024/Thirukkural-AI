@@ -871,9 +871,9 @@ def main():
                     
                     st.markdown(f"""
                     <div class="search-result-item">
-                        <strong>Thirukkural #{kural_data['ID']} - {kural_data['Chapter']}</strong>
-                        <p><em>{kural_data['Couplet']}</em></p>
-                        <p>{kural_data['Kural']}</p>
+                    <strong>Thirukkural #{kural_data['ID']} - {kural_data['Chapter']}</strong>
+                    <p><em>{kural_data['Couplet']}</em></p>
+                    <p>{kural_data['Kural']}</p>
                     </div>
                     """, unsafe_allow_html=True)
     
