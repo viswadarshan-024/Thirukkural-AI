@@ -215,6 +215,49 @@ def apply_custom_css():
         background-color: var(--accent-primary) !important;
         color: white !important;
     }
+
+    /* Added styles for search results visualization */
+    .search-result-item {
+        background-color: var(--bg-secondary);
+        padding: 15px;
+        border-radius: 10px;
+        margin: 10px 0;
+        border-left: 3px solid var(--accent-primary);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .search-result-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .search-result-item.selected {
+        border-left: 8px solid var(--accent-secondary);
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
+    }
+    
+    .relevance-indicator {
+        position: relative;
+        height: 8px;
+        background-color: var(--bg-tertiary);
+        border-radius: 4px;
+        margin-top: 10px;
+    }
+    
+    .relevance-bar {
+        position: absolute;
+        height: 100%;
+        border-radius: 4px;
+        background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    }
+    
+    .query-analysis {
+        background-color: var(--bg-tertiary);
+        padding: 15px;
+        border-radius: 10px;
+        margin: 15px 0;
+        border-left: 5px solid var(--accent-secondary);
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -243,6 +286,22 @@ def sidebar_info():
         - கோபத்தை எப்படி கட்டுப்படுத்துவது?
         - நல்ல குடும்ப வாழ்க்கை எப்படி அமைய வேண்டும்?
         """)
+        
+        # Add advanced options
+        st.markdown("---")
+        st.markdown("### Advanced Settings")
+        
+        # Option to view search process
+        st.session_state.show_process = st.checkbox("Show search process", value=False, 
+                                                  help="Shows the intermediate steps in finding the most relevant Thirukkural")
+        
+        # Number of candidate kurals to fetch
+        st.session_state.num_candidates = st.slider("Number of candidates", min_value=3, max_value=10, value=5,
+                                                  help="Number of initial candidate kurals to retrieve")
+        
+        # Temperature for LLM responses
+        st.session_state.temperature = st.slider("LLM temperature", min_value=0.0, max_value=1.0, value=0.7, step=0.1,
+                                               help="Controls creativity in AI responses (higher = more creative)")
 
 # Load the vector DB and model
 @st.cache_resource
@@ -282,8 +341,105 @@ def find_relevant_kurals(query, df, tamil_index, english_index, model, language=
     # Return top k results
     return results[:top_k]
 
-# Generate explanation and advice using Groq API with Llama-3.3-70b-versatile model
-def generate_groq_response(api_key, query, kural_data):
+# Generate evaluation of candidate kurals using Groq API
+def evaluate_candidates(api_key, query, candidate_kurals, df):
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    
+    # Create a detailed description of each candidate kural
+    candidates_text = ""
+    for i, candidate in enumerate(candidate_kurals, 1):
+        idx = candidate["index"]
+        kural_data = df.iloc[idx].to_dict()
+        
+        candidates_text += f"""
+        Candidate {i}:
+        Kural ID: {kural_data['ID']}
+        Tamil Kural: {kural_data['Kural']}
+        English Couplet: {kural_data['Couplet']}
+        Tamil Explanation: {kural_data['Vilakam']}
+        English Explanation: {kural_data['M_Varadharajanar']}
+        Chapter: {kural_data['Chapter']}
+        Section: {kural_data['Section']}
+        
+        """
+    
+    prompt = f"""
+    You are a wisdom expert familiar with Thirukkural, the ancient Tamil literature of ethical principles.
+    
+    User Query: {query}
+    
+    I have found {len(candidate_kurals)} potential Thirukkural verses that might be relevant to this query.
+    
+    {candidates_text}
+    
+    Your task is to:
+    
+    1. Analyze the user's query to understand the underlying need, concern, or question.
+    
+    2. Evaluate each candidate Thirukkural and determine how relevant it is to addressing the user's query.
+    
+    3. Select the MOST relevant Thirukkural that best addresses the user's query. If none are particularly relevant, indicate that a different Thirukkural might be better.
+    
+    4. Provide a brief analysis of why your selected Kural is most relevant to the user's needs.
+    
+    5. If you believe a completely different Thirukkural would be more appropriate (not in the candidates), please explain why, but do not include it in your ranking.
+    
+    Return your answer in the following format:
+    
+    <query_analysis>
+    A brief analysis of what the user is truly seeking advice about.
+    </query_analysis>
+    
+    <relevance_scores>
+    Candidate 1: [Score between 0-10] - Brief reason
+    Candidate 2: [Score between 0-10] - Brief reason
+    ...
+    </relevance_scores>
+    
+    <best_candidate>
+    The number of the best candidate (e.g., "Candidate 3")
+    </best_candidate>
+    
+    <rationale>
+    A detailed explanation of why this Thirukkural is most appropriate for the user's query.
+    </rationale>
+    
+    <need_alternative>
+    Yes/No - Whether you think a completely different Thirukkural would be better suited
+    </need_alternative>
+    
+    <alternative_suggestion>
+    If you answered Yes above, explain what type of Thirukkural would be more appropriate.
+    </alternative_suggestion>
+    """
+    
+    data = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": st.session_state.temperature,
+        "max_tokens": 2048
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        
+        response_data = response.json()
+        return response_data["choices"][0]["message"]["content"]
+    except requests.exceptions.RequestException as e:
+        st.error(f"API Error: {str(e)}")
+        return None
+    except (KeyError, IndexError) as e:
+        st.error(f"Unexpected response format: {str(e)}")
+        return None
+
+# Generate explanation and advice using Groq API
+def generate_response_for_kural(api_key, query, kural_data, query_analysis=""):
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
@@ -293,6 +449,8 @@ def generate_groq_response(api_key, query, kural_data):
     
     prompt = f"""
     User Query: {query}
+    
+    {query_analysis}
     
     Thirukkural Information:
     Kural ID: {kural_data['ID']}
@@ -307,13 +465,9 @@ def generate_groq_response(api_key, query, kural_data):
     Chapter: {kural_data['Chapter']}
     Section: {kural_data['Section']}
     
-    I need you to:
-    1. Analyze how relevant this Thirukkural is to the user's query
-    2. Explain why this Thirukkural is appropriate for their situation
-    3. Provide personal advice based on the wisdom of this Thirukkural
+    I need you to create a detailed, personalized response based on this Thirukkural for the user's query.
     
     Return your answer in the following format:
-    <relevance_score>Score between 0-10</relevance_score>
     
     <tamil_explanation>
     விளக்கம் (தமிழில்): [Detailed explanation in Tamil about how this Thirukkural relates to the user's query]
@@ -335,7 +489,7 @@ def generate_groq_response(api_key, query, kural_data):
     data = {
         "model": "llama-3.3-70b-versatile",
         "messages": [{"role": "user", "content": prompt}],
-        "temperature": 0.7,
+        "temperature": st.session_state.temperature,
         "max_tokens": 2048
     }
     
@@ -346,29 +500,83 @@ def generate_groq_response(api_key, query, kural_data):
         response_data = response.json()
         return response_data["choices"][0]["message"]["content"]
     except requests.exceptions.RequestException as e:
-        # st.error(f"API Error: {str(e)}")
+        st.error(f"API Error: {str(e)}")
         return None
     except (KeyError, IndexError) as e:
         st.error(f"Unexpected response format: {str(e)}")
         return None
 
-# Extract information from Groq response
-def parse_groq_response(response_text):
+# Parse evaluation response to get scores, best candidate, etc.
+def parse_evaluation_response(response_text):
+    if not response_text:
+        return {}
+    
+    result = {}
+    
+    # Extract query analysis
+    query_analysis_tag = "<query_analysis>"
+    query_analysis_end_tag = "</query_analysis>"
+    if query_analysis_tag in response_text and query_analysis_end_tag in response_text:
+        start = response_text.find(query_analysis_tag) + len(query_analysis_tag)
+        end = response_text.find(query_analysis_end_tag)
+        result["query_analysis"] = response_text[start:end].strip()
+    
+    # Extract relevance scores
+    relevance_scores_tag = "<relevance_scores>"
+    relevance_scores_end_tag = "</relevance_scores>"
+    if relevance_scores_tag in response_text and relevance_scores_end_tag in response_text:
+        start = response_text.find(relevance_scores_tag) + len(relevance_scores_tag)
+        end = response_text.find(relevance_scores_end_tag)
+        result["relevance_scores"] = response_text[start:end].strip()
+    
+    # Extract best candidate
+    best_candidate_tag = "<best_candidate>"
+    best_candidate_end_tag = "</best_candidate>"
+    if best_candidate_tag in response_text and best_candidate_end_tag in response_text:
+        start = response_text.find(best_candidate_tag) + len(best_candidate_tag)
+        end = response_text.find(best_candidate_end_tag)
+        best_candidate_text = response_text[start:end].strip()
+        
+        # Try to extract the candidate number
+        import re
+        candidate_match = re.search(r'Candidate\s+(\d+)', best_candidate_text)
+        if candidate_match:
+            result["best_candidate"] = int(candidate_match.group(1))
+        else:
+            result["best_candidate"] = best_candidate_text
+    
+    # Extract rationale
+    rationale_tag = "<rationale>"
+    rationale_end_tag = "</rationale>"
+    if rationale_tag in response_text and rationale_end_tag in response_text:
+        start = response_text.find(rationale_tag) + len(rationale_tag)
+        end = response_text.find(rationale_end_tag)
+        result["rationale"] = response_text[start:end].strip()
+    
+    # Extract need alternative
+    need_alternative_tag = "<need_alternative>"
+    need_alternative_end_tag = "</need_alternative>"
+    if need_alternative_tag in response_text and need_alternative_end_tag in response_text:
+        start = response_text.find(need_alternative_tag) + len(need_alternative_tag)
+        end = response_text.find(need_alternative_end_tag)
+        result["need_alternative"] = response_text[start:end].strip().lower() == "yes"
+    
+    # Extract alternative suggestion
+    alternative_suggestion_tag = "<alternative_suggestion>"
+    alternative_suggestion_end_tag = "</alternative_suggestion>"
+    if alternative_suggestion_tag in response_text and alternative_suggestion_end_tag in response_text:
+        start = response_text.find(alternative_suggestion_tag) + len(alternative_suggestion_tag)
+        end = response_text.find(alternative_suggestion_end_tag)
+        result["alternative_suggestion"] = response_text[start:end].strip()
+    
+    return result
+
+# Extract information from Groq response (from the final explanation)
+def parse_explanation_response(response_text):
     if not response_text:
         return {}
         
     result = {}
-    
-    # Extract relevance score
-    relevance_tag = "<relevance_score>"
-    relevance_end_tag = "</relevance_score>"
-    if relevance_tag in response_text and relevance_end_tag in response_text:
-        start = response_text.find(relevance_tag) + len(relevance_tag)
-        end = response_text.find(relevance_end_tag)
-        try:
-            result["relevance_score"] = float(response_text[start:end].strip())
-        except:
-            result["relevance_score"] = 0
     
     # Extract Tamil explanation
     tamil_explanation_tag = "<tamil_explanation>"
@@ -404,153 +612,332 @@ def parse_groq_response(response_text):
     
     return result
 
-# def add_footer():
-#     st.markdown("""
-#     <div class="app-footer">
-#         <p class="footer-text">
-#             © 2025 | திருக்குறள் AI | Developed By : Viswadarshan | 
-#             <a href="https://github.com/viswadarshan-024/Thirukkural-AI" class="footer-link" target="_blank">
-#                 <span style="vertical-align: middle;">GitHub</span>
-#             </a>
-#         </p>
-#     </div>
-#     """, unsafe_allow_html=True)
+# Parse the relevance scores from the text to get scores for visualization
+def parse_relevance_scores_text(relevance_scores_text):
+    import re
+    
+    scores = []
+    lines = relevance_scores_text.strip().split('\n')
+    
+    for line in lines:
+        match = re.search(r'Candidate\s+(\d+):\s+(\d+(?:\.\d+)?)', line)
+        if match:
+            candidate_num = int(match.group(1))
+            score = float(match.group(2))
+            reason = line.split('-', 1)[1].strip() if '-' in line else ""
+            scores.append({"candidate": candidate_num, "score": score, "reason": reason})
+    
+    return scores
+
+# Function for refined search if needed
+def perform_refined_search(api_key, query, df, alternative_suggestion):
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    
+    prompt = f"""
+    You are an expert in Thirukkural who can suggest the most appropriate Kural based on a query.
+    
+    User Query: {query}
+    
+    Based on analysis, we need a different Thirukkural than what was initially suggested.
+    
+    Additional guidance: {alternative_suggestion}
+    
+    Please recommend one specific Thirukkural that would be most relevant to this query.
+    
+    You have access to all 1,330 Thirukkural couplets. Provide the Kural ID number (between 1-1330) that you believe would be most appropriate.
+    
+    Return only the Kural ID number, nothing else. For example: 125
+    """
+    
+    data = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.2,  # Lower temperature for more focused response
+        "max_tokens": 50
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()
+        
+        response_data = response.json()
+        kural_id_text = response_data["choices"][0]["message"]["content"].strip()
+        
+        # Extract just the number from the response if there's extra text
+        import re
+        kural_id_match = re.search(r'(\d+)', kural_id_text)
+        if kural_id_match:
+            kural_id = int(kural_id_match.group(1))
+            
+            # Validate that it's in the valid range
+            if 1 <= kural_id <= 1330:
+                # Get the kural at that index (adjust for 0-indexing)
+                kural_data = df[df['ID'] == kural_id].iloc[0].to_dict() if not df[df['ID'] == kural_id].empty else None
+                return kural_data
+        
+        return None
+    except Exception as e:
+        st.error(f"Error in refined search: {str(e)}")
+        return None
+
 def add_footer():
     st.markdown("""
-    <div style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: #1a1a29; padding: 10px; text-align: center; border-top: 1px solid #373750;">
-        <p style="margin: 0; color: #b0b0b0; font-size: 0.9em;">
-            © 2025 | திருக்குறள் AI | Developed By : Viswadarshan | 
-            <a href="https://github.com/viswadarshan-024/Thirukkural-AI" style="color: #4d61fc; text-decoration: none;" target="_blank">
-                <span style="vertical-align: middle;">GitHub</span>
-            </a>
+    <div class="app-footer">
+        <p class="footer-text">
+            திருக்குறள் AI © 2025 | Created with ❤️ | 
+            <a href="https://github.com/yourusername/thirukkural-ai" target="_blank" class="footer-link">GitHub</a>
         </p>
     </div>
     """, unsafe_allow_html=True)
 
+# Function to display search results with visualization
+def display_search_results(candidates, df, evaluation_results):
+    if not candidates or not evaluation_results or "relevance_scores" not in evaluation_results:
+        return
+    
+    st.markdown("### Search Process")
+    
+    # Show query analysis
+    if "query_analysis" in evaluation_results:
+        st.markdown(f"""
+        <div class="query-analysis">
+            <strong>Query Analysis:</strong> {evaluation_results["query_analysis"]}
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Parse the scores for visualization
+    parsed_scores = parse_relevance_scores_text(evaluation_results["relevance_scores"])
+    
+    # Get the best candidate number
+    best_candidate = evaluation_results.get("best_candidate", None)
+    
+    # Display each candidate with visualization
+    for i, candidate in enumerate(candidates, 1):
+        idx = candidate["index"]
+        kural_data = df.iloc[idx].to_dict()
+        
+        # Find the score for this candidate
+        score_info = next((s for s in parsed_scores if s["candidate"] == i), None)
+        score = score_info["score"] if score_info else 0
+        reason = score_info["reason"] if score_info else ""
+        
+        # Normalize score to percentage for the bar
+        score_percentage = (score / 10) * 100
+        
+        is_selected = best_candidate == i
+        class_name = "search-result-item selected" if is_selected else "search-result-item"
+        
+        st.markdown(f"""
+        <div class="{class_name}">
+            <strong>Candidate {i}: Kural #{kural_data['ID']} ({kural_data['Chapter']})</strong>
+            <p><em>{kural_data['Couplet']}</em></p>
+            <p>{kural_data['Kural']}</p>
+            <div class="relevance-indicator">
+                <div class="relevance-bar" style="width: {score_percentage}%;"></div>
+            </div>
+            <p><strong>Relevance Score:</strong> {score}/10</p>
+            <p><strong>Reason:</strong> {reason}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Show rationale for best selection
+    if "rationale" in evaluation_results:
+        st.markdown("### Selection Rationale")
+        st.markdown(evaluation_results["rationale"])
+    
+    # Show if alternative needed
+    if evaluation_results.get("need_alternative", False):
+        st.markdown("### Alternative Suggestion Needed")
+        st.markdown(evaluation_results.get("alternative_suggestion", ""))
+
+# Function to display the final Thirukkural explanation
+def display_thirukkural_explanation(kural_data, explanation_data, tab_option="bilingual"):
+    st.markdown(f"""
+    <div class="thirukkural-box">
+        <h3>திருக்குறள் #{kural_data['ID']} - {kural_data['Chapter']}</h3>
+        <div class="kural-text">{kural_data['Kural']}</div>
+        <div><em>{kural_data['Couplet']}</em></div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Display explanations based on the selected language tab
+    if tab_option == "tamil":
+        st.markdown(f"""
+        <div class="explanation">
+            <h4>விளக்கம்:</h4>
+            <p>{explanation_data.get('tamil_explanation', '')}</p>
+            
+            <h4>ஆலோசனை:</h4>
+            <p>{explanation_data.get('tamil_advice', '')}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    elif tab_option == "english":
+        st.markdown(f"""
+        <div class="explanation">
+            <h4>Explanation:</h4>
+            <p>{explanation_data.get('english_explanation', '')}</p>
+            
+            <h4>Advice:</h4>
+            <p>{explanation_data.get('english_advice', '')}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    else:  # bilingual
+        st.markdown(f"""
+        <div class="explanation">
+            <h4>விளக்கம் (Explanation):</h4>
+            <p>{explanation_data.get('tamil_explanation', '')}</p>
+            <p>{explanation_data.get('english_explanation', '')}</p>
+            
+            <h4>ஆலோசனை (Advice):</h4>
+            <p>{explanation_data.get('tamil_advice', '')}</p>
+            <p>{explanation_data.get('english_advice', '')}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
 # Main app function
 def main():
+    # Apply custom CSS
     apply_custom_css()
+    
+    # Add logo and header
     add_logo()
-    add_footer()
-    with st.sidebar:
-        st.title("திருக்குறள் AI")
-        page = st.radio("Navigate to:", ["Home", "About"])
-    # Display sidebar info (no API key input)
+    
+    # Add sidebar information
     sidebar_info()
     
-    # Load vector DB and models
-    try:
-        df, tamil_index, english_index, model = load_vector_db()
-    except Exception as e:
-        st.error(f"Error loading models: {str(e)}")
-        return
-    if page == "Home":
-        # User query input
-        query = st.text_input("உங்கள் கேள்விகளைத் தமிழில் அல்லது ஆங்கிலத்தில் கேளுங்கள் / Ask your questions in Tamil or English...", key="user_query")
+    # Load vector DB and model
+    df, tamil_index, english_index, model = load_vector_db()
+    
+    # Main content
+    st.markdown("#### Ask for wisdom and guidance based on Thirukkural")
+    query = st.text_input("Enter your question or life situation:",
+                         placeholder="E.g., How do I choose good friends?")
+    
+    if st.button("Get Wisdom"):
+        if not query:
+            st.warning("Please enter a question or describe your situation.")
+            return
         
-        if st.button("பதிலைக் காண") or query:
-            if not query:
-                st.warning("தயவுசெய்து உங்கள் கேள்வியை உள்ளிடவும் / Please enter your query")
+        with st.spinner("Finding wisdom from Thirukkural..."):
+            # Step 1: Find candidate kurals using vector search
+            candidates = find_relevant_kurals(
+                query, df, tamil_index, english_index, model, 
+                language="both", top_k=st.session_state.num_candidates
+            )
+            
+            if not candidates:
+                st.error("No relevant Thirukkural found. Please try a different query.")
                 return
             
-            with st.spinner("உங்கள் கேள்விக்கான பதிலைத் தேடுகிறேன்... / Searching for relevant Thirukkurals..."):
-                # Find relevant kurals
-                kural_results = find_relevant_kurals(query, df, tamil_index, english_index, model, top_k=5)
+            # Step 2: Evaluate candidates with LLM
+            evaluation_response = evaluate_candidates(
+                st.session_state.groq_api_key, query, candidates, df
+            )
+            
+            if not evaluation_response:
+                st.error("Failed to evaluate candidates. Please try again.")
+                return
+            
+            # Parse the evaluation response
+            evaluation_results = parse_evaluation_response(evaluation_response)
+            
+            # Show search process if enabled
+            if st.session_state.show_process:
+                display_search_results(candidates, df, evaluation_results)
+            
+            # Step 3: Get the most relevant kural or perform refined search if needed
+            if evaluation_results.get("need_alternative", False):
+                st.info("Finding a better matching Thirukkural based on your query...")
                 
-                if not kural_results:
-                    st.error("No relevant Thirukkurals found. Please try a different query.")
-                    return
+                # Perform refined search
+                refined_kural_data = perform_refined_search(
+                    st.session_state.groq_api_key, 
+                    query, 
+                    df,
+                    evaluation_results.get("alternative_suggestion", "")
+                )
                 
-                best_kural = None
-                best_explanation = None
-                best_score = -1
+                if refined_kural_data:
+                    selected_kural_data = refined_kural_data
+                    st.success("Found a better matching Thirukkural!")
+                else:
+                    # Fallback to the best candidate from initial search
+                    best_idx = candidates[evaluation_results.get("best_candidate", 0) - 1]["index"]
+                    selected_kural_data = df.iloc[best_idx].to_dict()
+            else:
+                # Use the best candidate from evaluation
+                best_candidate_index = evaluation_results.get("best_candidate", 1) - 1
+                best_idx = candidates[best_candidate_index]["index"]
+                selected_kural_data = df.iloc[best_idx].to_dict()
+            
+            # Step 4: Generate personalized explanation and advice
+            explanation_response = generate_response_for_kural(
+                st.session_state.groq_api_key,
+                query,
+                selected_kural_data,
+                evaluation_results.get("query_analysis", "")
+            )
+            
+            if not explanation_response:
+                st.error("Failed to generate explanation. Please try again.")
+                return
+            
+            # Parse the explanation response
+            explanation_data = parse_explanation_response(explanation_response)
+            
+            # Step 5: Display the result in tabs for different languages
+            st.markdown("## Wisdom from Thirukkural")
+            
+            tab1, tab2, tab3 = st.tabs(["Bilingual", "தமிழ் (Tamil)", "English"])
+            
+            with tab1:
+                display_thirukkural_explanation(selected_kural_data, explanation_data, "bilingual")
+            
+            with tab2:
+                display_thirukkural_explanation(selected_kural_data, explanation_data, "tamil")
+            
+            with tab3:
+                display_thirukkural_explanation(selected_kural_data, explanation_data, "english")
+    
+    # Add related kurals suggestion feature
+    if 'last_query' in st.session_state and st.session_state.last_query:
+        st.markdown("---")
+        if st.button("Explore Related Wisdom"):
+            with st.spinner("Finding related wisdom..."):
+                # This could use similar logic to find related kurals based on previous query
+                # For simplicity, we'll just use a different search parameter
+                related_candidates = find_relevant_kurals(
+                    f"More about {st.session_state.last_query}", 
+                    df, tamil_index, english_index, model,
+                    language="both", top_k=3
+                )
                 
-                # Process each result and find the most relevant one
-                progress_bar = st.progress(0)
-                for i, result in enumerate(kural_results):
-                    idx = result["index"]
+                st.markdown("### Related Thirukkural Verses")
+                
+                for candidate in related_candidates:
+                    idx = candidate["index"]
                     kural_data = df.iloc[idx].to_dict()
                     
-                    # Generate explanation using Groq
-                    groq_response = generate_groq_response(st.session_state.groq_api_key, query, kural_data)
-                    if groq_response:
-                        parsed_response = parse_groq_response(groq_response)
-                        
-                        # Check relevance score
-                        relevance_score = parsed_response.get("relevance_score", 0)
-                        
-                        if relevance_score > best_score:
-                            best_score = relevance_score
-                            best_kural = kural_data
-                            best_explanation = parsed_response
-                    
-                    # Update progress
-                    progress_bar.progress((i + 1) / len(kural_results))
-                    time.sleep(0.1)  # Small delay to show progress
-                
-                # Clear progress bar
-                progress_bar.empty()
-                
-                if best_kural and best_explanation:
-                    # Create tabs for Tamil and English
-                    tab1, tab2 = st.tabs(["தமிழ் / Tamil", "English / ஆங்கிலம்"])
-                    
-                    # Tamil Content
-                    with tab1:
-                        # Display the kural in a box
-                        st.markdown(f"""
-                        <div class="thirukkural-box">
-                            <p class="kural-text">{best_kural['Kural']}</p>
-                            <p><strong>திருக்குறள் எண்:</strong> {best_kural['ID']}</p>
-                            <p><strong>அதிகாரம்:</strong> {best_kural['Adhigaram']} | <strong>பால்:</strong> {best_kural['Paal']} | <strong>இயல்:</strong> {best_kural['Iyal']}</p>
-                            <div class="explanation">
-                                <p><strong>விளக்கம்:</strong> {best_kural['Vilakam']}</p>
-                                <p><strong>கலைஞர் உரை:</strong> {best_kural['Kalaingar_Urai']}</p>
-                            </div>
-                        </div>
-                        """, unsafe_allow_html=True)
-                        
-                        # Display AI explanation and advice
-                        st.markdown("### குறள் தொடர்புடைய விளக்கம்")
-                        st.markdown(best_explanation.get("tamil_explanation", "விளக்கம் இல்லை"))
-                        
-                        st.markdown("### ஆலோசனை")
-                        st.markdown(f"""
-                        <div class="advice-box">
-                            {best_explanation.get("tamil_advice", "ஆலோசனை இல்லை")}
-                        </div>
-                        """, unsafe_allow_html=True)
-                    
-                    # English Content
-                    with tab2:
-                        # Display the kural in English
-                        st.markdown(f"""
-                        <div class="thirukkural-box">
-                            <p class="kural-text">{best_kural['Couplet']}</p>
-                            <p><strong>Kural Number:</strong> {best_kural['ID']}</p>
-                            <p><strong>Chapter:</strong> {best_kural['Chapter']} | <strong>Section:</strong> {best_kural['Section']}</p>
-                            <div class="explanation">
-                                <p><strong>Explanation:</strong> {best_kural['M_Varadharajanar']}</p>
-                                <p><strong>Detailed Explanation:</strong> {best_kural['Solomon_Pappaiya']}</p>
-                            </div>
-                        </div>
-                        """, unsafe_allow_html=True)
-                        
-                        # Display AI explanation and advice in English
-                        st.markdown("### Relevance to Your Query")
-                        st.markdown(best_explanation.get("english_explanation", "No explanation available"))
-                        
-                        st.markdown("### Personal Advice")
-                        st.markdown(f"""
-                        <div class="advice-box">
-                            {best_explanation.get("english_advice", "No advice available")}
-                        </div>
-                        """, unsafe_allow_html=True)
-                else:
-                    st.error("Could not find a relevant Thirukkural for your query. Please try a different question.")
-    else:
-        from about_page import about_page
-        about_page()
+                    st.markdown(f"""
+                    <div class="search-result-item">
+                        <strong>Thirukkural #{kural_data['ID']} - {kural_data['Chapter']}</strong>
+                        <p><em>{kural_data['Couplet']}</em></p>
+                        <p>{kural_data['Kural']}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+    
+    # Store current query for future reference
+    if query:
+        st.session_state.last_query = query
+    
+    # Add footer
+    add_footer()
 
+# Run the app
 if __name__ == "__main__":
     main()
