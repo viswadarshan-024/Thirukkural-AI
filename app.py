@@ -458,8 +458,8 @@ def add_footer():
     st.markdown("""
     <div class="app-footer">
         <p class="footer-text">
-            திருக்குறள் AI © 2025 | Created with ❤ | 
-            <a href="https://github.com/yourusername/thirukkural-ai" target="_blank" class="footer-link">GitHub</a>
+            திருக்குறள் AI © 2025 | Developed By: Viswadarshan | 
+            <a href="https://github.com/viswadarshan-024/thirukkural-ai" target="_blank" class="footer-link">GitHub</a>
         </p>
     </div>
     """, unsafe_allow_html=True)
