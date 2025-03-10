@@ -685,6 +685,11 @@ def display_thirukkural_explanation(kural_data, explanation_data, tab_option="bi
         </div>
         """, unsafe_allow_html=True)
 
+import logging
+
+# Setup logging configuration
+logging.basicConfig(level=logging.INFO)
+
 def store_in_json(user_query, kural, explanation, file_path='data.json'):
     data = {
         'user_query': user_query,
@@ -703,8 +708,12 @@ def store_in_json(user_query, kural, explanation, file_path='data.json'):
     
     existing_data.append(data)
     
-    with open(file_path, 'w') as file:
-        json.dump(existing_data, file, indent=4)
+    try:
+        with open(file_path, 'w') as file:
+            json.dump(existing_data, file, indent=4)
+        logging.info(f'Successfully updated {file_path}')
+    except Exception as e:
+        logging.error(f'Failed to write to {file_path}: {e}')
 
 # Main app function
 def main():
