@@ -14,9 +14,10 @@ import random
 load_dotenv()
 
 # Load multiple Groq API keys from the environment
-API_KEYS = os.getenv("GROQ_API_KEYS").split(",")
+# Load multiple Groq API keys directly
+API_KEYS = ["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", "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", "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"]
 if not API_KEYS:
-    raise ValueError("No API keys found in the environment variables.")
+    raise ValueError("No API keys found.")
 
 # Store API keys in session state for use throughout the app
 if 'api_keys' not in st.session_state:
