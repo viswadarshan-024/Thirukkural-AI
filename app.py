@@ -158,7 +158,16 @@ def apply_custom_css():
         font-size: 1.1em; /* Slightly larger font size for explanations */
     }
     
-    /* Advice box */
+    # /* Advice box */
+    # .advice-box {
+    #     background-color: var(--bg-tertiary);
+    #     padding: 20px;
+    #     border-radius: 10px;
+    #     margin: 20px 0; /* Increased margin for better spacing */
+    #     color: var(--text-primary);
+    #     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    # }
+
     .advice-box {
         background-color: var(--bg-tertiary);
         padding: 20px;
@@ -667,27 +676,24 @@ def display_thirukkural_explanation(kural_data, explanation_data, tab_option="bi
 
     # Display explanations based on the selected language tab
     if tab_option == "tamil":
-        st.markdown(f"""
-        <div class="explanation">
-            <h4>விளக்கம்:</h4>
-            <p>{explanation_data.get('tamil_explanation', '')}</p>
+        st.markdown("### குறள் தொடர்புடைய விளக்கம்")
+        st.markdown(best_explanation.get("tamil_explanation", "விளக்கம் இல்லை"))
             
-            <h4>ஆலோசனை:</h4>
+            st.markdown("### ஆலோசனை")
+            st.markdown(f"""
             <div class="advice-box">
-                <p><strong>ஆலோசனை (Tamil):</strong> {explanation_data.get('tamil_advice', '')}</p>
+            {best_explanation.get("tamil_advice", "ஆலோசனை இல்லை")}
             </div>
-        </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
     elif tab_option == "english":
         st.markdown(f"""
-        <div class="explanation">
-            <h4>Explanation:</h4>
-            <p>{explanation_data.get('english_explanation', '')}</p>
+        st.markdown("### Relevance to Your Query")
+        st.markdown(best_explanation.get("english_explanation", "No explanation available"))
             
-            <h4>Advice:</h4>
-            <div class="advice-box">
-                <p><strong>Advice (English):</strong> {explanation_data.get('english_advice', '')}</p>
-            </div>
+        st.markdown("### Personal Advice")
+        st.markdown(f"""
+        <div class="advice-box">
+        {best_explanation.get("english_advice", "No advice available")}
         </div>
         """, unsafe_allow_html=True)
     else:  # bilingual
