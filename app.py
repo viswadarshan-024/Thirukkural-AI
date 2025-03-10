@@ -295,6 +295,15 @@ def add_logo():
 # Modified sidebar - removed API key input
 def sidebar_info():
     with st.sidebar:
+        st.markdown("---")
+        st.markdown("### Advanced Settings")
+        st.session_state.show_process = st.checkbox("Show search process", value=False, 
+                                                  help="Shows the intermediate steps in finding the most relevant Thirukkural")
+        st.session_state.num_candidates = st.slider("Number of candidates", min_value=3, max_value=7, value=5,
+                                                  help="Number of initial candidate kurals to retrieve")
+        st.session_state.temperature = st.slider("LLM temperature", min_value=0.0, max_value=1.0, value=0.7, step=0.1,
+                                               help="Controls creativity in AI responses (higher = more creative)")
+        st.markdown("---")
         st.title("திருக்குறள் AI பற்றி")
         st.markdown("---")
         st.markdown("""
@@ -306,14 +315,7 @@ def sidebar_info():
         - கோபத்தை எப்படி கட்டுப்படுத்துவது?
         - நல்ல குடும்ப வாழ்க்கை எப்படி அமைய வேண்டும்?
         """)
-        st.markdown("---")
-        st.markdown("### Advanced Settings")
-        st.session_state.show_process = st.checkbox("Show search process", value=False, 
-                                                  help="Shows the intermediate steps in finding the most relevant Thirukkural")
-        st.session_state.num_candidates = st.slider("Number of candidates", min_value=3, max_value=7, value=5,
-                                                  help="Number of initial candidate kurals to retrieve")
-        st.session_state.temperature = st.slider("LLM temperature", min_value=0.0, max_value=1.0, value=0.7, step=0.1,
-                                               help="Controls creativity in AI responses (higher = more creative)")
+
 
 # Load the vector DB and model
 @st.cache_resource
