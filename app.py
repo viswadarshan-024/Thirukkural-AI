@@ -694,7 +694,10 @@ def store_in_json(user_query, kural, explanation, file_path='data.json'):
     
     try:
         with open(file_path, 'r') as file:
-            existing_data = json.load(file)
+            try:
+                existing_data = json.load(file)
+            except json.JSONDecodeError:
+                existing_data = []
     except FileNotFoundError:
         existing_data = []
     
