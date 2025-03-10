@@ -301,7 +301,7 @@ def sidebar_info():
         st.markdown("### Advanced Settings")
         st.session_state.show_process = st.checkbox("Show search process", value=False, 
                                                   help="Shows the intermediate steps in finding the most relevant Thirukkural")
-        st.session_state.num_candidates = st.slider("Number of candidates", min_value=3, max_value=10, value=5,
+        st.session_state.num_candidates = st.slider("Number of candidates", min_value=3, max_value=7, value=5,
                                                   help="Number of initial candidate kurals to retrieve")
         st.session_state.temperature = st.slider("LLM temperature", min_value=0.0, max_value=1.0, value=0.7, step=0.1,
                                                help="Controls creativity in AI responses (higher = more creative)")
