@@ -685,6 +685,24 @@ def display_thirukkural_explanation(kural_data, explanation_data, tab_option="bi
         </div>
         """, unsafe_allow_html=True)
 
+def store_in_json(user_query, kural, explanation, file_path='data.json'):
+    data = {
+        'user_query': user_query,
+        'kural': kural,
+        'explanation': explanation
+    }
+    
+    try:
+        with open(file_path, 'r') as file:
+            existing_data = json.load(file)
+    except FileNotFoundError:
+        existing_data = []
+    
+    existing_data.append(data)
+    
+    with open(file_path, 'w') as file:
+        json.dump(existing_data, file, indent=4)
+
 # Main app function
 def main():
     # Apply custom CSS
@@ -700,7 +718,6 @@ def main():
     df, tamil_index, english_index, model = load_vector_db()
     
     # Main content
-    # st.markdown("#### Ask for wisdom and guidance based on Thirukkural")
     query = st.text_input("Enter your question or life situation:",
                          placeholder="E.g., How do I choose good friends?")
     
@@ -776,7 +793,10 @@ def main():
             # Parse the explanation response
             explanation_data = parse_explanation_response(explanation_response)
             
-            # Step 5: Display the result in tabs for different languages
+            # Step 5: Store the query and response in JSON file
+            store_in_json(query, selected_kural_data, explanation_data)
+            
+            # Step 6: Display the result in tabs for different languages
             st.markdown("## Wisdom from Thirukkural")
             
             tab1, tab2, tab3 = st.tabs(["Bilingual", "தமிழ் (Tamil)", "English"])
