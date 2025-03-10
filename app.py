@@ -702,8 +702,14 @@ def display_thirukkural_explanation(kural_data, explanation_data, tab_option="bi
         st.markdown(explanation_data.get('english_explanation', ''))
 
         st.markdown("### ஆலோசனை (Advice)")
-        st.markdown(f"**ஆலோசனை (Tamil):** {explanation_data.get('tamil_advice', '')}")
-        st.markdown(f"**Advice (English):** {explanation_data.get('english_advice', '')}")
+        st.markdown(f"""
+        <div class="advice-box">
+        **ஆலோசனை (Tamil):** {explanation_data.get('tamil_advice', '')}
+        **Advice (English):** {explanation_data.get('english_advice', '')}
+        </div>
+        """, unsafe_allow_html=True)
+        # st.markdown(f"**ஆலோசனை (Tamil):** {explanation_data.get('tamil_advice', '')}")
+        # st.markdown(f"**Advice (English):** {explanation_data.get('english_advice', '')}")
 
 import logging
 
