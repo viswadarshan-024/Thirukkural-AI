@@ -673,7 +673,9 @@ def display_thirukkural_explanation(kural_data, explanation_data, tab_option="bi
             <p>{explanation_data.get('tamil_explanation', '')}</p>
             
             <h4>ஆலோசனை:</h4>
-            <div class="advice-box">{explanation_data.get('tamil_advice', '')}</div>
+            <div class="advice-box">
+                <p><strong>ஆலோசனை (Tamil):</strong> {explanation_data.get('tamil_advice', '')}</p>
+            </div>
         </div>
         """, unsafe_allow_html=True)
     elif tab_option == "english":
@@ -683,7 +685,9 @@ def display_thirukkural_explanation(kural_data, explanation_data, tab_option="bi
             <p>{explanation_data.get('english_explanation', '')}</p>
             
             <h4>Advice:</h4>
-            <div class="advice-box">{explanation_data.get('english_advice', '')}</div>
+            <div class="advice-box">
+                <p><strong>Advice (English):</strong> {explanation_data.get('english_advice', '')}</p>
+            </div>
         </div>
         """, unsafe_allow_html=True)
     else:  # bilingual
@@ -694,8 +698,12 @@ def display_thirukkural_explanation(kural_data, explanation_data, tab_option="bi
             <p>{explanation_data.get('english_explanation', '')}</p>
             
             <h4>ஆலோசனை (Advice):</h4>
-            <div class="advice-box">{explanation_data.get('tamil_advice', '')}</div>
-            <div class="advice-box">{explanation_data.get('english_advice', '')}</div>
+            <div class="advice-box">
+                <p><strong>ஆலோசனை (Tamil):</strong> {explanation_data.get('tamil_advice', '')}</p>
+            </div>
+            <div class="advice-box">
+                <p><strong>Advice (English):</strong> {explanation_data.get('english_advice', '')}</p>
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
