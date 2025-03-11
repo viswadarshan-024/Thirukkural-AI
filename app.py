@@ -297,7 +297,7 @@ def sidebar_info():
     with st.sidebar:
         st.markdown("---")
         st.markdown("### Advanced Settings")
-        st.session_state.show_process = st.checkbox("Show search process", value=False, 
+        st.session_state.show_process = st.checkbox("Show search process", value=True, 
                                                   help="Shows the intermediate steps in finding the most relevant Thirukkural")
         st.session_state.num_candidates = st.slider("Number of candidates", min_value=3, max_value=7, value=5,
                                                   help="Number of initial candidate kurals to retrieve")
